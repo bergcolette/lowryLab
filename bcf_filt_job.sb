@@ -1,13 +1,40 @@
-# script for filtering bcf files from the switchgrass diversity panel
-# these genotype files were initially processed by Paulo 
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=bcfFilt_test
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=01:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+
+module purge 
+module load GCC/6.4.0-2.28 OpenMPI/2.1.2 BCFtools/1.9
+
+
 
 # setting directory where bcfs are stored & where the filtered genotype files will go
 bcfDir="/mnt/research/glbrc_group/lowry_lab/WGS/genotyping_pi/population_L/chr_level/"
 outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 
-mkdir outDir
-
-cd outDir
+# mkdir ${outDir}
 
 # filter by quality
 
@@ -15,7 +42,7 @@ bcftools view -i 'QUAL>=29' ${bcfDir}/Chr01K_pop.vcf.gz > ${outDir}/Chr01K_biall
 
 # filter by depth
 
-bcftools view  -i  'MIN(FMT/DP>8) & MIN(FMT/DP<500)' ${outDir}/Chr01K_biallelic_snps_qualFilt.bcf > ${outDir}/Chr01K_biallelic_snps_depthFilt.bcf
+bcftools view  -i  'MIN(FMT/DP>8) &  MIN(FMT/DP<500)' ${outDir}/Chr01K_biallelic_snps_qualFilt.bcf > ${outDir}/Chr01K_biallelic_snps_depthFilt.bcf
 
 # filter by missingness 
 
@@ -30,4 +57,4 @@ rm ${outDir}/Chr01K_biallelic_snps_qualFilt.bcf
 rm ${outDir}/Chr01K_biallelic_snps_depthFilt.bcf
 rm ${outDir}/Chr01K_biallelic_snps_missingFilt.bcf
 
-# convert to .012 format (simple genotype matrix for mapping eQTLs)
+echo "running script to filter bcf files" 
