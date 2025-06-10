@@ -1,0 +1,60 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=split_vcfs_indv_array
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=40:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+# 
+# indicate that I'm using an array
+#SBATCH --array=1-18
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+# loading required modules
+
+module purge 
+module load   GCC/12.2.0 BCFtools/1.17
+
+
+# now I have all the files split by whether they are present in MI or TX 
+
+# next step -- filtering by missingness 
+
+
+# script for filtering bcf files from the switchgrass diversity panel
+# these genotype files were initially processed by Paulo 
+
+# setting directory where bcfs are stored & where the filtered genotype files will go
+bcfDir="/mnt/research/glbrc_group/lowry_lab/WGS/genotyping_pi/population_L/chr_level/"
+outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
+
+# mkdir outDir
+
+# cd outDir
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+
+
+# filter by missingness
+bcftools view -i  -i  'MIN(FMT/DP>8) & MIN(FMT/DP<500) & F_MISSING<0.1' ${outDir}/${sampleID}.bcf  > ${outDir}/${sampleID}_filt.bcf
+
+

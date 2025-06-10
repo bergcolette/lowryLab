@@ -1,0 +1,57 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=split_vcfs_indv_array
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=40:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+# 
+# indicate that I'm using an array
+#SBATCH --array=1-17
+
+
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+
+module purge 
+module load   GCC/12.2.0 BCFtools/1.17
+
+# script for filtering bcf files from the switchgrass diversity panel
+# these genotype files were initially processed by Paulo 
+
+# setting directory where bcfs are stored & where the filtered genotype files will go
+bcfDir="/mnt/research/glbrc_group/lowry_lab/WGS/genotyping_pi/population_L/chr_level/"
+outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
+
+# mkdir outDir
+
+# cd outDir
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+
+# filter to only keep indvs with Texas RNASeq data
+
+bcftools view -Ou -S TX_keep.txt ${bcfDir}/${sampleID}_pop.vcf.gz > ${outDir}/${sampleID}_TX_keep.bcf 
+
+# filter to only keep indvs with Michigan RNASeq data 
+
+bcftools view -Ou -S MI_keep.txt ${bcfDir}/${sampleID}_pop.vcf.gz > ${outDir}/${sampleID}_MI_keep.bcf 
