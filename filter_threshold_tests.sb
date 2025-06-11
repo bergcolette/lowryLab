@@ -1,0 +1,63 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=filter_WGS_for_eQTL_noMissing
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=40:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+# 
+# indicate that I'm using an array
+#SBATCH --array=1-18
+
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+
+module purge 
+module load   GCC/12.2.0 BCFtools/1.17
+
+# script for filtering bcf files from the switchgrass diversity panel
+# these genotype files were initially processed by Paulo 
+
+# setting directory where bcfs are stored & where the filtered genotype files will go
+bcfDir="/mnt/research/glbrc_group/lowry_lab/WGS/genotyping_pi/population_L/chr_level/"
+outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+
+# filter by depth and missingness (this time 0.95)
+
+# bcftools view -i 'FORMAT/DP>8 & F_MISSING<0.05' ${outDir}/${sampleID}_subset.bcf  > ${outDir}/${sampleID}_95_filt.bcf
+
+# only retain biallelic SNPs (0.95 threshold)
+
+# bcftools view -q 0.005:minor -m 2 -M 2 ${outDir}/${sampleID}_95_filt.bcf > ${outDir}/${sampleID}_95_snps.bcf
+
+
+# filter by depth and missingness (this time next to no missingness allowed)
+
+bcftools view -i 'FORMAT/DP>8 & F_MISSING<0.001' ${outDir}/${sampleID}_subset.bcf  > ${outDir}/${sampleID}_100_filt.bcf
+
+# only retain biallelic SNPs (this time no missingness allowed)
+
+bcftools view -q 0.005:minor -m 2 -M 2 ${outDir}/${sampleID}_100_filt.bcf > ${outDir}/${sampleID}_100_snps.bcf
+
+
