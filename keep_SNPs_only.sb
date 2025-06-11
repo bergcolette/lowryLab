@@ -22,7 +22,7 @@
 #SBATCH --output=%x-%j.SLURMout
 # 
 # indicate that I'm using an array
-#SBATCH --array=1-18
+#SBATCH --array=1-36
 
 echo "JobID: $SLURM_JOB_ID"
 echo "Running on node: `hostname`"
@@ -55,6 +55,4 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 
 
 # filter by missingness and depth 
-bcftools view -i  -i  'MIN(FMT/DP>8) & MIN(FMT/DP<500) & F_MISSING<0.1' ${outDir}/${sampleID}.bcf  > ${outDir}/${sampleID}_filt.bcf
-
-
+bcftools view -q 0.005:minor -m 2 -M 2 ${outDir}/${sampleID}.bcf > ${outDir}/${sampleID}_snps.bcf
