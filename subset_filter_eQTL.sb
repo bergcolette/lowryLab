@@ -1,6 +1,6 @@
 #!/bin/bash --login
 # Job name:
-#SBATCH --job-name=split_vcfs_indv_array
+#SBATCH --job-name=filter_WGS_for_eQTL
 #
 # Number of nodes
 #SBATCH --nodes=1
@@ -22,8 +22,7 @@
 #SBATCH --output=%x-%j.SLURMout
 # 
 # indicate that I'm using an array
-#SBATCH --array=1-17
-
+#SBATCH --array=1-18
 
 
 echo "JobID: $SLURM_JOB_ID"
@@ -40,18 +39,19 @@ module load   GCC/12.2.0 BCFtools/1.17
 bcfDir="/mnt/research/glbrc_group/lowry_lab/WGS/genotyping_pi/population_L/chr_level/"
 outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 
-# mkdir outDir
-
-# cd outDir
-
 # call to the chromosome array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
+# filter to only keep indvs that have both WGS data and transcriptomic data 
 
-# filter to only keep indvs with Texas RNASeq data
+bcftools view -Ou -S keep_transcriptomic_indvs.txt ${bcfDir}/${sampleID}_pop.vcf.gz > ${outDir}/${sampleID}_subset.bcf 
 
-bcftools view -Ou -S TX_keep.txt ${bcfDir}/${sampleID}_pop.vcf.gz > ${outDir}/${sampleID}_TX_keep.bcf 
+# filter by depth and missingness 
 
-# filter to only keep indvs with Michigan RNASeq data 
+bcftools view -i 'FORMAT/DP>8 & F_MISSING<0.1' ${outDir}/${sampleID}_subset.bcf  > ${outDir}/${sampleID}_filt.bcf
 
-bcftools view -Ou -S MI_keep.txt ${bcfDir}/${sampleID}_pop.vcf.gz > ${outDir}/${sampleID}_MI_keep.bcf 
+# only retain biallelic SNPs 
+
+bcftools view -q 0.005:minor -m 2 -M 2 ${outDir}/${sampleID}_filt.bcf > ${outDir}/${sampleID}_snps.bcf
+
+
