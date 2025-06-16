@@ -56,3 +56,4 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 
 # filter by missingness and depth 
 bcftools view -q 0.005:minor -m 2 -M 2 ${outDir}/${sampleID}.bcf > ${outDir}/${sampleID}_snps.bcf
+ls

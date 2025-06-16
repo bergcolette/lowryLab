@@ -26,7 +26,7 @@
 #SBATCH --array=1-18
 
 module purge
-module load Beagle/5.4.22Jul22.46e-Java-11
+module load Beagle/5.4.22Jul22.46e-Java-11 GCC/12.2.0 BCFtools/1.17
 
 # call to the chromosome array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
@@ -36,17 +36,22 @@ outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 
 # calling to beagle -- goal is impute 
 
-# imputing for the 100 % present filtered set
-java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_100/${sampleID}_100_snps.bcf out=${outDir}/filt_100/${sampleID}_100_snps_imputed
+# imputing for the 100 % present filtered set. converting to vcf first 
+bcftools convert -O v -o ${outDir}/filt_100/${sampleID}_100_snps.vcf ${outDir}/filt_100/${sampleID}_100_snps.bcf
+java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_100/${sampleID}_100_snps.vcf out=${outDir}/filt_100/${sampleID}_100_snps_imputed
 
 # imputing for the 99 % present filtered set
-java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_99/${sampleID}_99_snps.bcf out=${outDir}/filt_99/${sampleID}_99_snps_imputed
+bcftools convert -O v -o ${outDir}/filt_99/${sampleID}_199_snps.vcf ${outDir}/filt_99/${sampleID}_99_snps.bcf
+java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_99/${sampleID}_99_snps.vcf out=${outDir}/filt_99/${sampleID}_99_snps_imputed
 
 # imputing for the 97.5 % present filtered set
-java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_97.5/${sampleID}_97.5_snps.bcf out=${outDir}/filt_97.5/${sampleID}_97.5_snps_imputed
+bcftools convert -O v -o ${outDir}/filt_100/${sampleID}_100_snps.vcf ${outDir}/filt_100/${sampleID}_100_snps.bcf
+java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_97.5/${sampleID}_97.5_snps.vcf out=${outDir}/filt_97.5/${sampleID}_97.5_snps_imputed
 
 # imputing for the 95 % present filtered set
-java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_95/${sampleID}_95_snps.bcf out=${outDir}/filt_95/${sampleID}_95_snps_imputed
+bcftools convert -O v -o ${outDir}/filt_95/${sampleID}_95_snps.vcf ${outDir}/filt_95/${sampleID}_95_snps.bcf
+java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_95/${sampleID}_95_snps.vcf out=${outDir}/filt_95/${sampleID}_95_snps_imputed
 
 # imputing for the 90 % present filtered set
-java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_90/${sampleID}_snps.bcf out=${outDir}/filt_90/${sampleID}_90_snps_imputed
+bcftools convert -O v -o ${outDir}/filt_90/${sampleID}_90_snps.vcf ${outDir}/filt_90/${sampleID}_90_snps.bcf
+java -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_90/${sampleID}_snps.vcf out=${outDir}/filt_90/${sampleID}_90_snps_imputed
