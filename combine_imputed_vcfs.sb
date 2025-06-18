@@ -1,0 +1,64 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=combine_imputed_vcfs_and_assess_popStructure
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=40:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+# 
+#
+# indicate that I'm using an array
+#SBATCH --array=1-18
+
+module purge
+module load GCC/12.2.0 BCFtools/1.17 PLINK/2.00a3.7-gfbf-2023a
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# setting the working directory
+outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
+
+# now combining all the imputed vcfs, for each filtering group & each chromosome
+bcftools concat ${outDir}/filt_100/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz
+bcftools concat ${outDir}/filt_99/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz
+bcftools concat ${outDir}/filt_97.5/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz
+bcftools concat ${outDir}/filt_95/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz
+bcftools concat ${outDir}/filt_90/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz
+
+# indexing the combined imputed files 
+bcftools index ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz
+bcftools index ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz
+bcftools index ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz
+bcftools index ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz
+bcftools index ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz
+
+# converting to plink format 
+plink --file ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz --make-bed --out ${outDir}/filt_100/${sampleID}_100_imputed
+plink --file ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz --make-bed --out ${outDir}/filt_99/${sampleID}_99_imputed
+plink --file ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz --make-bed --out ${outDir}/filt_97.5/${sampleID}_97.5_imputed
+plink --file ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz --make-bed --out ${outDir}/filt_95/${sampleID}_95_imputed
+plink --file ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz --make-bed --out ${outDir}/filt_90/${sampleID}_90_imputed
+
+
+# creating PCAs for each chromosome with plink. just keeping the first 10 PCs because this is an eyeball thing 
+plink --bfile ${outDir}/filt_100/${sampleID}_100_imputed --pca --out ${outDir}/filt_100/${sample_ID}_100_imputed
+plink --bfile ${outDir}/filt_99/${sampleID}_99_imputed --pca --out ${outDir}/filt_99/${sample_ID}_99_imputed
+plink --bfile ${outDir}/filt_97.5/${sampleID}_97.5_imputed --pca --out ${outDir}/filt_97.5/${sample_ID}_97.5_imputed
+plink --bfile ${outDir}/filt_95/${sampleID}_95_imputed --pca --out ${outDir}/filt_95/${sample_ID}_95_imputed
+plink --bfile ${outDir}/filt_90/${sampleID}_90_imputed --pca --out ${outDir}/filt_90/${sample_ID}_90_imputed
