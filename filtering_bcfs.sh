@@ -9,6 +9,18 @@ mkdir outDir
 
 cd outDir
 
+# filter to only keep indvs with Texas RNASeq data
+
+bcftools view -Ou -S TX_keep.txt ${bcfDir}/Chr01K_pop.vcf.gz > ${outDir}/Chr01K_TX_keep.bcf 
+
+# filter to only keep indvs with Michigan RNASeq data 
+
+bcftools view -Ou -S MI_keep.txt ${bcfDir}/Chr01K_pop.vcf.gz > ${outDir}/Chr01K_TX_keep.bcf 
+
+
+
+# filter to only keep indvs with Michigan RNASeq data 
+
 # filter by quality
 
 bcftools view -i 'QUAL>=29' ${bcfDir}/Chr01K_pop.vcf.gz > ${outDir}/Chr01K_biallelic_snps_qualFilt.bcf
