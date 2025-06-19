@@ -1,6 +1,6 @@
 #!/bin/bash --login
 # Job name:
-#SBATCH --job-name=combine_imputed_vcfs_and_assess_popStructure
+#SBATCH --job-name=index
 #
 # Number of nodes
 #SBATCH --nodes=1
@@ -26,7 +26,7 @@
 #SBATCH --array=1-18
 
 module purge
-module load GCC/12.2.0 BCFtools/1.17 PLINK/2.00a3.7-gfbf-2023a
+module load   GCC/12.2.0 BCFtools/1.17 PLINK/1.9b_6.21-x86_64
 
 # call to the chromosome array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
@@ -34,31 +34,46 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 # setting the working directory
 outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 
-# now combining all the imputed vcfs, for each filtering group & each chromosome
-bcftools concat ${outDir}/filt_100/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz
-bcftools concat ${outDir}/filt_99/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz
-bcftools concat ${outDir}/filt_97.5/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz
-bcftools concat ${outDir}/filt_95/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz
-bcftools concat ${outDir}/filt_90/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz
-
 # indexing the combined imputed files 
-bcftools index ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz
-bcftools index ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz
-bcftools index ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz
-bcftools index ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz
-bcftools index ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz
+#for i in ${outDir}/filt_100/${sampleID}*vcf.gz; do bcftools index -f $ils ; done
+# for i in ${outDir}/filt_99/${sampleID}*vcf.gz; do bcftools index -f $i; done
+#for i in ${outDir}/filt_97.5/${sampleID}*vcf.gz; do bcftools index -f $i; done
+#for i in ${outDir}/filt_95/${sampleID}*vcf.gz; do bcftools index -f $i; done
+#for i in ${outDir}/filt_90/${sampleID}*vcf.gz; do bcftools index -f $i; done
+
+# now combining all the imputed vcfs, for each filtering group & each chromosome
+# bcftools concat ${outDir}/filt_100/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz
+# bcftools concat ${outDir}/filt_99/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz
+# bcftools concat ${outDir}/filt_97.5/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz
+# bcftools concat ${outDir}/filt_95/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz
+# bcftools concat ${outDir}/filt_90/${sampleID}*vcf.gz -Oz -o ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz
+
+
+# sorting the output vcfs 
+# bcftools sort ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz --max-mem 50g -Oz -o ${outDir}/filt_100/${sampleID}_100_sort.vcf.gz
+# bcftools sort ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz  --max-mem 50g -Oz -o ${outDir}/filt_99/${sampleID}_99_sort.vcf.gz
+# bcftools sort ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz  --max-mem 50g -Oz -o ${outDir}/filt_97.5/${sampleID}_97.5_sort.vcf.gz
+# bcftools sort ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz  --max-mem 50g -Oz -o ${outDir}/filt_95/${sampleID}_95_sort.vcf.gz
+# bcftools sort ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz  --max-mem 50g -Oz -o ${outDir}/filt_90/${sampleID}_90_sort.vcf.gz
+
+# indexing the sorted vcfs 
+# for i in ${outDir}/filt_100/${sampleID}*sort*vcf.gz; do bcftools index -f $i ; done
+# for i in ${outDir}/filt_99/${sampleID}*sort*vcf.gz; do bcftools index -f $i; done
+# for i in ${outDir}/filt_97.5/${sampleID}*sort*vcf.gz; do bcftools index -f $i; done
+# for i in ${outDir}/filt_95/${sampleID}*sort*vcf.gz; do bcftools index -f $i; done
+# for i in ${outDir}/filt_90/${sampleID}*sort*vcf.gz; do bcftools index -f $i; done
 
 # converting to plink format 
-plink --file ${outDir}/filt_100/${sampleID}_100_imputed.vcf.gz --make-bed --out ${outDir}/filt_100/${sampleID}_100_imputed
-plink --file ${outDir}/filt_99/${sampleID}_99_imputed.vcf.gz --make-bed --out ${outDir}/filt_99/${sampleID}_99_imputed
-plink --file ${outDir}/filt_97.5/${sampleID}_97.5_imputed.vcf.gz --make-bed --out ${outDir}/filt_97.5/${sampleID}_97.5_imputed
-plink --file ${outDir}/filt_95/${sampleID}_95_imputed.vcf.gz --make-bed --out ${outDir}/filt_95/${sampleID}_95_imputed
-plink --file ${outDir}/filt_90/${sampleID}_90_imputed.vcf.gz --make-bed --out ${outDir}/filt_90/${sampleID}_90_imputed
+# plink --vcf ${outDir}/filt_100/${sampleID}_100_sort.vcf.gz --make-bed --allow-extra-chr --out ${outDir}/filt_100/${sampleID}_100_imputed
+# plink --vcf ${outDir}/filt_99/${sampleID}_99_sort.vcf.gz --make-bed --allow-extra-chr --out ${outDir}/filt_99/${sampleID}_99_imputed
+# plink --vcf ${outDir}/filt_97.5/${sampleID}_97.5_sort.vcf.gz --make-bed --allow-extra-chr --out ${outDir}/filt_97.5/${sampleID}_97.5_imputed
+# plink --vcf ${outDir}/filt_95/${sampleID}_95_sort.vcf.gz --make-bed --allow-extra-chr --out ${outDir}/filt_95/${sampleID}_95_imputed
+# plink --vcf ${outDir}/filt_90/${sampleID}_90_sort.vcf.gz --make-bed --allow-extra-chr --out ${outDir}/filt_90/${sampleID}_90_imputed
 
 
 # creating PCAs for each chromosome with plink. just keeping the first 10 PCs because this is an eyeball thing 
-plink --bfile ${outDir}/filt_100/${sampleID}_100_imputed --pca --out ${outDir}/filt_100/${sample_ID}_100_imputed
-plink --bfile ${outDir}/filt_99/${sampleID}_99_imputed --pca --out ${outDir}/filt_99/${sample_ID}_99_imputed
-plink --bfile ${outDir}/filt_97.5/${sampleID}_97.5_imputed --pca --out ${outDir}/filt_97.5/${sample_ID}_97.5_imputed
-plink --bfile ${outDir}/filt_95/${sampleID}_95_imputed --pca --out ${outDir}/filt_95/${sample_ID}_95_imputed
-plink --bfile ${outDir}/filt_90/${sampleID}_90_imputed --pca --out ${outDir}/filt_90/${sample_ID}_90_imputed
+plink --bfile ${outDir}/filt_100/${sampleID}_100_imputed --pca 10 --out ${outDir}/filt_100/${sample_ID}_100_imputed
+plink --bfile ${outDir}/filt_99/${sampleID}_99_imputed --pca 10 --out ${outDir}/filt_99/${sample_ID}_99_imputed
+plink --bfile ${outDir}/filt_97.5/${sampleID}_97.5_imputed --pca 10 --out ${outDir}/filt_97.5/${sample_ID}_97.5_imputed
+plink --bfile ${outDir}/filt_95/${sampleID}_95_imputed --pca 10 --out ${outDir}/filt_95/${sample_ID}_95_imputed
+plink --bfile ${outDir}/filt_90/${sampleID}_90_imputed --pca 10 --out ${outDir}/filt_90/${sample_ID}_90_imputed

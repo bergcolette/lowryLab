@@ -1,0 +1,65 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=switchgrass_eGWAS_TX
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=40:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+# 
+#
+# indicate that I'm using an array
+#SBATCH --array=75000000
+
+# loading required modules
+module purge
+module load Miniforge3
+
+# call to the array (this is gene expression (expression is the phenotype))
+gene=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' genes_TX.array)
+
+# activating the environment where gemma is installed
+conda activate gemma 
+
+# setting directories
+vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99"
+outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/eGWAS/TX"
+
+# make list of chromosomes to loop through
+list="Chr01K
+Chr01N
+Chr02K
+Chr02N
+Chr03K
+Chr03N
+Chr04K
+Chr04N
+Chr05K
+Chr05N
+Chr06K
+Chr06N
+Chr07K
+Chr07N
+Chr08K
+Chr08N
+Chr09K
+Chr09N"
+
+for i in $list:
+    do 
+    gemma -bfile ${vcfDir}/${i}_99_imputed -k {relatednessFile} -lmm 4 -o ${i}_${gene} -n ${gene};
+    done
