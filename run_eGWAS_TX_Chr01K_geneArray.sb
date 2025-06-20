@@ -1,7 +1,6 @@
 #!/bin/bash --login
 # Job name:
-#SBATCH --job-name=switchgrass_eGWAS_TX_relatedness_1phen_noArray
-#
+#SBATCH --job-name=Chr01K_eGWAS
 # Number of nodes
 #SBATCH --nodes=1
 #
@@ -20,6 +19,9 @@
 #
 # Standard out and error:
 #SBATCH --output=%x-%j.SLURMout
+#
+# indicate that I'm using an array
+#SBATCH --array=1-70195
 
 # loading required modules
 module purge
@@ -30,32 +32,12 @@ conda activate switchgrass_eGWAS
 
 # setting directories
 vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99"
-outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/eGWAS/TX"
 
-list="Chr01K
-Chr01N
-Chr02K
-Chr02N
-Chr03K
-Chr03N
-Chr04K
-Chr04N
-Chr05K
-Chr05N
-Chr06K
-Chr06N
-Chr07K
-Chr07N
-Chr08K
-Chr08N
-Chr09K
-Chr09N"
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' geneNumber_TX.array)
+
 
 # make the relatedness matrix 
-# gemma -bfile ${vcfDir}/${sampleID}_99_imputed -gk 1 -o ${sampleID}
+gemma -bfile ${vcfDir}/Chr01K_99_imputed -gk 1 -o Chr01K
 
-
-for i in $list:
-    do 
-    gemma -bfile ${vcfDir}/${i}_99_imputed -k output/${i}.cXX.txt -lmm 1 -o eGWAS/${i}_1 -n 1;
-    done
+# run for each gene 
+gemma -bfile ${vcfDir}/Chr01K_99_imputed -k output/Chr01K.cXX.txt -lmm 1 -o Chr01K_${sampleID} -n ${sampleID}

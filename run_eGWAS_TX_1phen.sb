@@ -32,30 +32,28 @@ conda activate switchgrass_eGWAS
 vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99"
 outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/eGWAS/TX"
 
-list="Chr01K
-Chr01N
-Chr02K
-Chr02N
-Chr03K
-Chr03N
-Chr04K
-Chr04N
-Chr05K
-Chr05N
-Chr06K
-Chr06N
-Chr07K
-Chr07N
-Chr08K
-Chr08N
-Chr09K
-Chr09N"
+list="Chr01K"
+#Chr01N
+#Chr02K
+#Chr02N
+#Chr03K
+#Chr03N
+#Chr04K
+#Chr04N
+#Chr05K
+#Chr05N
+#Chr06K
+#Chr06N
+#Chr07K
+#Chr07N
+#Chr08K
+#Chr08N
+#Chr09K
+#Chr09N"
 
 # make the relatedness matrix 
-# gemma -bfile ${vcfDir}/${sampleID}_99_imputed -gk 1 -o ${sampleID}
+gemma -bfile ${vcfDir}/Chr01K_99_imputed -gk 1 -o Chr01K
 
 
-for i in $list:
-    do 
-    gemma -bfile ${vcfDir}/${i}_99_imputed -k output/${i}.cXX.txt -lmm 1 -o eGWAS/${i}_1 -n 1;
-    done
+
+gemma -bfile ${vcfDir}/Chr01K_99_imputed -k output/Chr01K.cXX.txt -lmm 1 -o Chr01K_1 -n 1

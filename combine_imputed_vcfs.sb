@@ -35,7 +35,7 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 
 # indexing the combined imputed files 
-#for i in ${outDir}/filt_100/${sampleID}*vcf.gz; do bcftools index -f $ils ; done
+#for i in ${outDir}/filt_100/${sampleID}*vcf.gz; do bcftools index -f $i; done
 # for i in ${outDir}/filt_99/${sampleID}*vcf.gz; do bcftools index -f $i; done
 #for i in ${outDir}/filt_97.5/${sampleID}*vcf.gz; do bcftools index -f $i; done
 #for i in ${outDir}/filt_95/${sampleID}*vcf.gz; do bcftools index -f $i; done
@@ -72,8 +72,14 @@ outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 
 
 # creating PCAs for each chromosome with plink. just keeping the first 10 PCs because this is an eyeball thing 
-plink --bfile ${outDir}/filt_100/${sampleID}_100_imputed --pca 10 --out ${outDir}/filt_100/${sample_ID}_100_imputed
-plink --bfile ${outDir}/filt_99/${sampleID}_99_imputed --pca 10 --out ${outDir}/filt_99/${sample_ID}_99_imputed
-plink --bfile ${outDir}/filt_97.5/${sampleID}_97.5_imputed --pca 10 --out ${outDir}/filt_97.5/${sample_ID}_97.5_imputed
-plink --bfile ${outDir}/filt_95/${sampleID}_95_imputed --pca 10 --out ${outDir}/filt_95/${sample_ID}_95_imputed
-plink --bfile ${outDir}/filt_90/${sampleID}_90_imputed --pca 10 --out ${outDir}/filt_90/${sample_ID}_90_imputed
+# for i in ${outDir}/filt_100/${sampleID}_100_imputed; do plink --bfile $i --pca 10 --allow-extra-chr --out $i; done 
+for i in ${outDir}/filt_99/${sampleID}_99_imputed; do plink --bfile $i --pca 10 --allow-extra-chr --out $i; done 
+# for i in ${outDir}/filt_97.5/${sampleID}_97.5_imputed; do plink --bfile $i --pca 10 --allow-extra-chr --out $i; done 
+# for i in ${outDir}/filt_95/${sampleID}_95_imputed; do plink --bfile $i --pca 10 --allow-extra-chr --out $i; done 
+# for i in ${outDir}/filt_90/${sampleID}_90_imputed; do plink --bfile $i --pca 10 --allow-extra-chr --out $i; done 
+
+# --bfile ${outDir}/filt_100/${sampleID}_100_imputed --pca 10 --allow-extra-chr
+# plink --bfile ${outDir}/filt_99/${sampleID}_99_imputed --pca 10 --allow-extra-chr --out ${sample_ID}
+# plink --bfile ${outDir}/filt_97.5/${sampleID}_97.5_imputed --pca 10 --allow-extra-chr --out ${sample_ID}
+# plink --bfile ${outDir}/filt_95/${sampleID}_95_imputed --pca 10 --allow-extra-chr --out ${sample_ID}
+# plink --bfile ${outDir}/filt_90/${sampleID}_90_imputed --pca 10 --allow-extra-chr --out ${sample_ID}

@@ -1,0 +1,51 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=beagle_imputation_99filt_start
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=40:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+# 
+#
+# indicate that I'm using an array
+#SBATCH --array=1-18
+
+module purge
+module load Beagle/5.4.22Jul22.46e-Java-11 GCC/12.2.0 BCFtools/1.17
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+#chromRegions=$(awk -v ArrayTaskID_2=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID_2 {print $2}' chromosomes.array)
+
+# setting the working directory
+outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
+
+
+# imputing for the 100 % present filtered set. converting to vcf first 
+# running beagle in 5-Mb increments so we don't run out of memory
+
+# making list to loop through the chrom sections - 1Mb at a time 
+list="0-500000
+500000-1000000"
+
+# bcftools convert -O v -o ${outDir}/filt_99/${sampleID}_99_snps.vcf ${outDir}/filt_99/${sampleID}_99_snps.bcf
+for i in $list
+    do java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar gt=${outDir}/filt_99/${sampleID}_99_snps.vcf out=${outDir}/filt_99/${sampleID}_${i} chrom=${sampleID}:${i};
+    done
+
+
