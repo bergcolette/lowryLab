@@ -10,7 +10,7 @@
 #
 #
 # Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
-#SBATCH --time=40:00:00
+#SBATCH --time=15:00:00
 #
 # Mail type:
 #SBATCH --mail-type=ALL
@@ -40,7 +40,9 @@ outDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes"
 # running beagle in 5-Mb increments so we don't run out of memory
 
 # making list to loop through the chrom sections - 1Mb at a time 
-list="1000000-1500000
+list="0-500000
+500000-1000000
+1000000-1500000
 1500000-2000000
 2000000-2500000
 2500000-3000000
