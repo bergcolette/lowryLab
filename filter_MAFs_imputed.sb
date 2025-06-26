@@ -44,6 +44,8 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 # filter the imputed vcfs to only keep SNPs with MAF >= 0.05 
 # output them as 012s
 
-vcftools --gzvcf ${vcfDir}/${sampleID}_99_imputed.vcf.gz --maf 0.05 --out ${vcfDir}/${sampleID}_maf05 --012
+vcftools --gzvcf ${vcfDir}/${sampleID}_99_imputed.vcf.gz --maf 0.05 --remove-indels --min-alleles 2 --max-alleles 2 --out ${vcfDir}/${sampleID}_maf05 --recode
+
+gzip ${vcfDir}/${sampleID}_maf05.recode.vcf 
 
 
