@@ -28,7 +28,6 @@
 echo "JobID: $SLURM_JOB_ID"
 echo "Running on node: `hostname`"
 
-
 module purge 
 module load VCFtools/0.1.16-GCC-12.3.0
 
@@ -36,7 +35,7 @@ module load VCFtools/0.1.16-GCC-12.3.0
 # these genotype files were initially processed by Paulo 
 
 # setting directory where vcfs are stored & where the filtered genotype files will go
-vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99"
+vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99/filt99_imputed"
 
 # call to the chromosome array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
@@ -44,7 +43,7 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 # filter the imputed vcfs to only keep SNPs with MAF >= 0.05 
 # output them as 012s
 
-vcftools --gzvcf ${vcfDir}/${sampleID}_99_imputed.vcf.gz --maf 0.05 --remove-indels --min-alleles 2 --max-alleles 2 --out ${vcfDir}/${sampleID}_maf05 --recode
+vcftools --gzvcf ${vcfDir}/${sampleID}_99_sort.vcf.gz --maf 0.05 --remove-indels --min-alleles 2 --max-alleles 2 --out ${vcfDir}/${sampleID}_maf05 --recode
 
 gzip ${vcfDir}/${sampleID}_maf05.recode.vcf 
 
