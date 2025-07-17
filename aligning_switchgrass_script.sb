@@ -30,10 +30,11 @@ module purge
 module load bwa-mem2/2.2.1-intel-compilers-2023.1.0 Trimmomatic/0.39-Java-11  SAMtools/1.18-GCC-12.3.0  picard/2.25.1-Java-11
 
 # naming variables for the directories
-vcfDir="path/to/vcfs"
+vcfDir="path/to/fastqs"
 outDir="path/to/outDir"
 
 # sample name of your file (this can be edited to use an array to call many samples at once)
+sampleName="sample_name"
 
 # set the reference genome
 genome="path/to/genome"

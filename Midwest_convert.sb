@@ -1,7 +1,17 @@
 #!/bin/bash --login
 # Job name:
 #SBATCH --job-name=covert_vcf_to_genMatrix
-
+#
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=covert_vcf_to_genMatrix
+#
 # Number of nodes
 #SBATCH --nodes=1
 #
@@ -43,7 +53,7 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 
 
 # Extract genotype data
-bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}_maf05.recode.vcf.gz > ${vcfDir}/${sampleID}_genotypes.txt
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}_Midwest.recode.vcf > ${vcfDir}/${sampleID}_Midwest_genotypes.txt
 
 # Create the genotype file (requires further processing of genotypes.txt)
 
@@ -62,4 +72,4 @@ for (i=5; i<=NF; i++) {
     }
   }
   printf "\n"
-}' ${vcfDir}/${sampleID}_genotypes.txt > ${vcfDir}/${sampleID}_genotype_matrix.txt
+}' ${vcfDir}/${sampleID}_Midwest_genotypes.txt > ${vcfDir}/${sampleID}_Midwest_genotype_matrix.txt
