@@ -1,7 +1,7 @@
 #!/bin/bash --login
 #SBATCH --job-name=starAlign_fastqs
 #SBATCH --nodes=1
-#SBATCH --time=1:00:00
+#SBATCH --time=6:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout
@@ -30,12 +30,11 @@ STAR \
     --genomeDir ${genomeDir}  \
     --readFilesIn ${fastqDir}/${sampleID}.prepped.R1.fastq ${fastqDir}/${sampleID}.prepped.R1.fastq \
     --sjdbGTFfile /mnt/scratch/bergcole/referenceGenome/AP13_DAC6_pseudoref.gtf  \
-    --outFilterMultimapNmax 2 \
     --outMultimapperOrder Random \
-    --outFilterScoreMinOverLread 0.3 \
-    --outFilterMatchNminOverLread 0.3 \
     --outSAMtype BAM Unsorted \
-    --outFileNamePrefix ${fastqDir}/${sampleID}
+    --outFileNamePrefix ${fastqDir}/${sampleID} \
+    --outFilterScoreMinOverLread 0.5 \
+    --outFilterMatchNminOverLread 0.5 \
 
 gzip ${fastqDir}/${sampleID}.prepped.R1.fastq
 gzip ${fastqDir}/${sampleID}.prepped.R1.fastq
