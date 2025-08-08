@@ -1,0 +1,57 @@
+#!/bin/bash --login
+# Job name:
+#SBATCH --job-name=Chr01K_eGWAS
+# Number of nodes
+#SBATCH --nodes=1
+#
+# Number of tasks to run on each node
+#SBATCH --ntasks-per-node=16
+#
+#
+#
+# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
+#SBATCH --time=8:00:00
+#
+# Mail type:
+#SBATCH --mail-type=ALL
+#
+# Mail user:
+#SBATCH --mail-user=bergcole@msu.edu
+#
+# Standard out and error:
+#SBATCH --output=%x-%j.SLURMout
+#
+# indicate that I'm using an array
+#SBATCH --array=1-1000
+
+# loading required modules
+module purge
+module load Miniforge3
+
+# activating the environment where gemma is installed
+conda activate switchgrass_eGWAS
+
+# setting directories
+vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99"
+
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' geneNumber_TX.array)
+
+# run for each gene 
+gemma -bfile ${vcfDir}/Chr01K_99_imputed -k relatedness/Chr01K.cXX.txt -lmm 1 -o Chr01K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr01N_99_imputed -k relatedness/Chr01N.cXX.txt -lmm 1 -o Chr01N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr02K_99_imputed -k relatedness/Chr02K.cXX.txt -lmm 1 -o Chr02K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr02N_99_imputed -k relatedness/Chr02N.cXX.txt -lmm 1 -o Chr02N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr03K_99_imputed -k relatedness/Chr03K.cXX.txt -lmm 1 -o Chr03K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr03N_99_imputed -k relatedness/Chr03N.cXX.txt -lmm 1 -o Chr03N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr04K_99_imputed -k relatedness/Chr04K.cXX.txt -lmm 1 -o Chr04K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr04N_99_imputed -k relatedness/Chr04N.cXX.txt -lmm 1 -o Chr04N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr05K_99_imputed -k relatedness/Chr05K.cXX.txt -lmm 1 -o Chr05K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr05N_99_imputed -k relatedness/Chr05N.cXX.txt -lmm 1 -o Chr05N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr06K_99_imputed -k relatedness/Chr06K.cXX.txt -lmm 1 -o Chr06K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr06N_99_imputed -k relatedness/Chr06N.cXX.txt -lmm 1 -o Chr06N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr07K_99_imputed -k relatedness/Chr07K.cXX.txt -lmm 1 -o Chr07K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr07N_99_imputed -k relatedness/Chr07N.cXX.txt -lmm 1 -o Chr07N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr08K_99_imputed -k relatedness/Chr08K.cXX.txt -lmm 1 -o Chr08K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr08N_99_imputed -k relatedness/Chr08N.cXX.txt -lmm 1 -o Chr08N_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr09K_99_imputed -k relatedness/Chr09K.cXX.txt -lmm 1 -o Chr09K_${sampleID} -n ${sampleID}
+gemma -bfile ${vcfDir}/Chr09N_99_imputed -k relatedness/Chr09N.cXX.txt -lmm 1 -o Chr09N_${sampleID} -n ${sampleID}

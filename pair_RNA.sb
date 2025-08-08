@@ -6,6 +6,7 @@
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout
 #SBATCH --array=1-43
+#SBATCH --mem=96GB                         # Total memory limit
 
 # load required modules 
 module purge
@@ -25,8 +26,8 @@ gunzip ${fastqDir}/${sampleID}.prepped.R2.fastq.gz
 fastqDir="/mnt/scratch/bergcole/data"
 
 # run fastq-pair (this will put the reads in the same order)
-fastq-pair ${fastqDir}/${sampleID}.prepped.R1.fastq ${fastqDir}/${sampleID}.prepped.R2.fastq 
+fastq_pair ${fastqDir}/${sampleID}.prepped.R1.fastq ${fastqDir}/${sampleID}.prepped.R2.fastq 
 
 # zip up the files again
-gzip ${fastqDir}/${sampleID}.prepped.R1.fastq
-gzip ${fastqDir}/${sampleID}.prepped.R2.fastq
+#gzip ${fastqDir}/${sampleID}.prepped.R1.fastq
+#gzip ${fastqDir}/${sampleID}.prepped.R2.fastq
