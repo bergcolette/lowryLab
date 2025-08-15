@@ -10,4 +10,4 @@
 module purge
 module load BBMap
 
-reformat.sh in=/mnt/scratch/bergcole/data/SRR8440701.fastq out=/mnt/scratch/bergcole/data/SRR8440701_2.fastq out2=/mnt/scratch/bergcole/data/SRR8440701_1.fastq tossbrokenreads=t overwrite=t
+reformat.sh in=/mnt/scratch/bergcole/ASE/SRR3709212.fastq out=/mnt/scratch/bergcole/ASE/SRR3709212_2.fastq out2=/mnt/scratch/bergcole/ASE/SRR3709212_1.fastq tossbrokenreads=t
