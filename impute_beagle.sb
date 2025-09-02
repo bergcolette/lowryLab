@@ -1,0 +1,30 @@
+#!/bin/bash --login
+#SBATCH --job-name=beagle_imputation
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=96G
+#SBATCH --time=8:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18
+
+module purge
+module load Beagle/5.4.22Jul22.46e-Java-11 GCC/12.2.0
+
+# call to the chromosome array
+
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# setting the working directory
+outDir="/mnt/scratch/bergcole/genotypes"
+
+# running beagle for lowland vcfs
+java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar \
+    gt=${outDir}/${sampleID}_lowland.vcf \
+    out=${outDir}/${sampleID}_lowland_imputed chrom=${sampleID}
+
+# running beagle for Midwesst vcfs
+java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar \
+    gt=${outDir}/${sampleID}_Midwest.vcf \
+    out=${outDir}/${sampleID}_Midwest_imputed chrom=${sampleID}

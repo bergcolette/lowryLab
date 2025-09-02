@@ -14,7 +14,7 @@ echo "Running on node: `hostname`"
 # loading required modules
 
 module purge 
-module load VCFtools PLINK/2.00a3.7-gfbf-2023a
+module load VCFtools
 
 
 # script for filtering bcf files from the switchgrass diversity panel
@@ -28,19 +28,18 @@ outDir="/mnt/scratch/bergcole/genotypes"
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
 # filter to SNPs only, max missing 0.01, maf > 0.05
-#vcftools --gzvcf ${bcfDir}/${sampleID}_pop.vcf.gz \
-#--min-alleles 2 \
-#--max-alleles 2 \
-#--max-missing 0.99 \
-#--keep keepList_all.txt \
-#--maf 0.05 \
-#--out  ${outDir}/${sampleID}_snps_filtered \
-#--recode 
+vcftools --gzvcf ${bcfDir}/${sampleID}_pop.vcf.gz \
+--min-alleles 2 \
+--max-alleles 2 \
+--max-missing 0.99 \
+--keep ${outDir}/Midwest.txt \
+--maf 0.05 \
+--out  ${outDir}/${sampleID}_snps_filtered_Midwest \
+--recode 
 
-# convert to bed format and add SNP ids
-plink2 --vcf ${outDir}/${sampleID}_snps_filtered.recode.vcf --make-bed --set-all-var-ids @_# --allow-extra-chr --out ${outDir}/${sampleID}
+# convert to bed format
+plink --vcf ${outDir}/${sampleID}_snps_filtered_Midwest.recode.vcf --make-bed --out ${outDir}/${sampleID}_Midwest
 
 # now prune via LD 
-plink2 --bfile ${outDir}/${sampleID} --indep-pairwise 5000 5 0.2 --allow-extra-chr --out ${outDir}/${sampleID}
+plink --bfile ${outDir}/${sampleID}_Midwest --indep-pairwise 50 5 0.2 --out ${outDir}/${sampleID}_Midwest
 
-#vcftools --vcf ${outDir}/${sampleID}_snps_filtered.recode.vcf --positions ${outDir}/${sampleID}.prune.in  --out ${outDir}/${sampleID}_lowland_pruned --recode

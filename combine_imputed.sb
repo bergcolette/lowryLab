@@ -1,0 +1,17 @@
+#!/bin/bash --login
+#SBATCH --job-name=beagle_imputation
+#SBATCH --nodes=1
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+
+module purge
+module load BCFtools/1.19-GCC-13.2.0
+
+bcfDir="/mnt/scratch/bergcole/genotypes"
+
+bcftools concat ${bcfDir}/*Midwest*vcf.gz -Oz -o ${bcfDir}/allChroms_Midwest.vcf.gz
+bcftools concat ${bcfDir}/*lowland*vcf.gz -Oz -o ${bcfDir}/allChroms_lowland.vcf.gz
+
+
+

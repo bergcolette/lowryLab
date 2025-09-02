@@ -1,0 +1,31 @@
+#!/bin/bash --login
+#SBATCH --job-name=split_midwest_lowland
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --time=8:00:0
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+# loading required modules
+
+module purge 
+module load VCFtools
+
+
+# script for filtering bcf files from the switchgrass diversity panel
+# these genotype files were initially processed by Paulo 
+
+# setting directory where bcfs are stored & where the filtered genotype files will go
+vcfDir="/mnt/scratch/bergcole/genotypes"
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# split the vcfs by population (midwest vs lowland)
+vcftools --vcf ${vcfDir}/${sampleID}_snps_filtered.recode.vcf --keep ${vcfDir}/lowland.txt --out  ${vcfDir}/${sampleID}_lowland --recode 
+vcftools --vcf ${vcfDir}/${sampleID}_snps_filtered.recode.vcf --keep ${vcfDir}/Midwest.txt --out  ${vcfDir}/${sampleID}_Midwest --recode
