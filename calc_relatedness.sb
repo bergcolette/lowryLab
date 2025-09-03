@@ -1,0 +1,19 @@
+#!/bin/bash --login
+#SBATCH --job-name=combine_imputed
+#SBATCH --nodes=1
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+
+module purge
+module load PLINK/1.9b_6.21-x86_64
+
+bcfDir="/mnt/scratch/bergcole/genotypes"
+
+#plink --vcf ${bcfDir}/allChroms_Midwest.vcf.gz --allow-extra-chr  --pca  --out allChroms_Midwest
+plink --vcf ${bcfDir}/allChroms_lowland.vcf.gz  --allow-extra-chr --pca --out allChroms_lowland
+
+
+
+
+
