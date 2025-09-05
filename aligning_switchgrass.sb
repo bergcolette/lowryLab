@@ -45,31 +45,31 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 # bwa-mem2 mem -t 12 ${genome} ${fastqDir}SRR3709212.1.paired.fastq ${fastqDir}SRR3709212.1.paired.fastq > ${fastqDir}/SRR3709212.sam 
 
 # filter to minimum quality of 29 with samtools view 
-samtools view -bS ${fastqDir}/${sampleID}.sam -q 29 > ${fastqDir}/${sampleID}.bam
+# samtools view -bS ${fastqDir}/${sampleID}.sam -q 29 > ${fastqDir}/${sampleID}.bam
 
 # sort the resulting bam 
-samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.sort.bam ${fastqDir}/${sampleID}.bam
+# samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.sort.bam ${fastqDir}/${sampleID}.bam
 
 # label read groups with picard 
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-	I=${fastqDir}/${sampleID}.sort.bam \
-	O=${fastqDir}/${sampleID}.RG.sort.bam \
-	RGSM=${sampleID} \
-	RGLB=lib1 \
-	RGPL=ILLUMINA \
-	RGPU=unit1
+# java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
+#	I=${fastqDir}/${sampleID}.sort.bam \
+#	O=${fastqDir}/${sampleID}.RG.sort.bam \
+#	RGSM=${sampleID} \
+#	RGLB=lib1 \
+#	RGPL=ILLUMINA \
+#	RGPU=unit1
 
 # index the bam file 
-samtools index ${fastqDir}/${sampleID}.RG.sort.bam
+# samtools index ${fastqDir}/${sampleID}.RG.sort.bam
 
 # rename the bam 
-#mv ${outDir}/${sampleName}.RG.sort.bam.realigned ${outDir}/${sampleName}.unsorted.bam
+mv ${fastqDir}/${sampleID}.RG.sort.bam.realigned ${fastqDir}/${sampleID}.unsorted.bam
 
 # sort the bam 
-#samtools sort -T ${sampleName} -o ${outDir}/${sampleName}.bam ${outDir}/${sampleName}.unsorted.bam
+samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.bam ${fastqDir}/${sampleID}.unsorted.bam
 
 # index the bam
-#samtools index ${outDir}/${sampleName}.bam
+samtools index ${fastqDir}/${sampleID}.bam
 
 # remove intermediate files 
 #rm ${outDir}/${sampleName}.sam
