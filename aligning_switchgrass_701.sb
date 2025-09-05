@@ -3,11 +3,10 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=48G
-#SBATCH --time=4:00:00
+#SBATCH --time=36:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout
-#SBATCH --array=1-2
 
 echo "JobID: $SLURM_JOB_ID"
 echo "Running on node: `hostname`"
@@ -15,13 +14,13 @@ echo "Running on node: `hostname`"
 # first purging modules, then loading what you need 
 # load in Trimmomatic, bwa, samtools, gatk, picard 
 module purge 
-module load bwa-mem2/2.2.1-intel-compilers-2023.1.0 Trimmomatic/0.39-Java-11  SAMtools/1.18-GCC-12.3.0  picard/2.25.1-Java-11
+module load bwa-mem2 Trimmomatic/0.39-Java-11  SAMtools/1.18-GCC-12.3.0  picard/2.25.1-Java-11
 
 # call to the fastq array
-sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' AP13_DAC6_WGS.array)
+# sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' AP13_DAC6_WGS.array)
 
 # naming variables for the directories
-fastqDir="/mnt/scratch/bergcole/ASE"
+fastqDir="/mnt/scratch/bergcole/ASE/"
 
 # set the reference genome
 genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
@@ -42,25 +41,21 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
 # align the trimmed reads to the genome 
 
-# bwa-mem2 mem -t 12 ${genome} ${fastqDir}SRR3709212.1.paired.fastq ${fastqDir}SRR3709212.1.paired.fastq > ${fastqDir}/SRR3709212.sam 
+bwa-mem2 mem -t 12 ${genome} ${fastqDir}/SRR8440701.1.paired.fastq ${fastqDir}/SRR8440701.1.paired.fastq > ${fastqDir}/SRR8440701.sam 
 
 # filter to minimum quality of 29 with samtools view 
-samtools view -bS ${fastqDir}/${sampleID}.sam -q 29 > ${fastqDir}/${sampleID}.bam
+# samtools view -bS ${outDir}/${sampleName}.sam -q 29 > ${outDir}/${sampleName}.bam
 
 # sort the resulting bam 
-samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.sort.bam ${fastqDir}/${sampleID}.bam
+# samtools sort -T ${sampleName} -o ${outDir}/${sampleName}.sort.bam ${outDir}/${sampleName}.bam
 
 # label read groups with picard 
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-	I=${fastqDir}/${sampleID}.sort.bam \
-	O=${fastqDir}/${sampleID}.RG.sort.bam \
-	RGSM=${sampleID} \
-	RGLB=lib1 \
-	RGPL=ILLUMINA \
-	RGPU=unit1
+#java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
+#    INPUT=${outDir}/${sampleName}.sort.bam OUTPUT = ${outDir}/${sampleName}.RG.sort.bam
+#    RGSM=${sampleName}
 
 # index the bam file 
-samtools index ${fastqDir}/${sampleID}.RG.sort.bam
+# samtools index ${outDir}/${sampleName}.RG.sort.bam
 
 # rename the bam 
 #mv ${outDir}/${sampleName}.RG.sort.bam.realigned ${outDir}/${sampleName}.unsorted.bam

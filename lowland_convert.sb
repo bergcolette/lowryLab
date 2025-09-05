@@ -22,7 +22,7 @@ vcfDir="/mnt/scratch/bergcole/genotypes"
 
 
 # call to the chromosome array
-# sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
 # gunzip  ${vcfDir}/${sampleID}_lowland_imputed.vcf.gz
 

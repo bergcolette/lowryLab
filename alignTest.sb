@@ -1,9 +1,9 @@
 #!/bin/bash --login
-#SBATCH --job-name=aligning_AP13_DAC6
+#SBATCH --job-name=aligninTest
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=48G
+#SBATCH --ntasks-per-node=16
 #SBATCH --time=4:00:00
+#SBATCH --mem=48G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout
@@ -42,37 +42,6 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
 # align the trimmed reads to the genome 
 
-# bwa-mem2 mem -t 12 ${genome} ${fastqDir}SRR3709212.1.paired.fastq ${fastqDir}SRR3709212.1.paired.fastq > ${fastqDir}/SRR3709212.sam 
-
-# filter to minimum quality of 29 with samtools view 
-samtools view -bS ${fastqDir}/${sampleID}.sam -q 29 > ${fastqDir}/${sampleID}.bam
-
-# sort the resulting bam 
-samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.sort.bam ${fastqDir}/${sampleID}.bam
-
-# label read groups with picard 
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-	I=${fastqDir}/${sampleID}.sort.bam \
-	O=${fastqDir}/${sampleID}.RG.sort.bam \
-	RGSM=${sampleID} \
-	RGLB=lib1 \
-	RGPL=ILLUMINA \
-	RGPU=unit1
-
-# index the bam file 
-samtools index ${fastqDir}/${sampleID}.RG.sort.bam
-
-# rename the bam 
-#mv ${outDir}/${sampleName}.RG.sort.bam.realigned ${outDir}/${sampleName}.unsorted.bam
-
-# sort the bam 
-#samtools sort -T ${sampleName} -o ${outDir}/${sampleName}.bam ${outDir}/${sampleName}.unsorted.bam
-
-# index the bam
-#samtools index ${outDir}/${sampleName}.bam
-
-# remove intermediate files 
-#rm ${outDir}/${sampleName}.sam
-#rm ${outDir}/${sampleName}*paired*
-#rm ${outDir}/${sampleName}*sort*
-#rm ${outDir}/${sampleName}*rmdup_metrix_fix*
+bwa-mem2 mem -t 16 ${genome} \
+	${fastqDir}/SRR8440701.1.paired.fastq \
+	${fastqDir}/SRR8440701.2.paired.fastq > ${fastqDir}/SRR8440701.sam 
