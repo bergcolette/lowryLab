@@ -1,5 +1,5 @@
 #!/bin/bash --login
-#SBATCH --job-name=filter_vcfs
+#SBATCH --job-name=subset_atlantic_gulf
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
 #SBATCH --time=8:00:0
@@ -16,6 +16,7 @@ echo "Running on node: `hostname`"
 module purge 
 module load VCFtools PLINK/2.00a3.7-gfbf-2023a
 
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
 # script for filtering bcf files from the switchgrass diversity panel
 # these genotype files were initially processed by Paulo 
@@ -23,8 +24,14 @@ module load VCFtools PLINK/2.00a3.7-gfbf-2023a
 # setting directory where bcfs are stored & where the filtered genotype files will go
 outDir="/mnt/scratch/bergcole/genotypes"
 
-# filter to SNPs only, max missing 0.01, maf > 0.05
-#vcftools --gzvcf ${bcfDir}/${sampleID}_pop.vcf.gz \
-#--keep keepList_Atlantic.txt
-#--out  ${outDir}/snps_imputed_Atlantic\
-#--recode 
+# filter to subset, Atlantic population only
+vcftools --gzvcf ${outDir}/${sampleID}_lowland_imputed.vcf \
+	--keep keepList_Atlantic.txt \
+	--out  ${outDir}/${sampleID}_imputed_Atlantic \
+	--recode 
+
+# filter to subset, Gulf population only 
+vcftools --gzvcf ${outDir}/${sampleID}_lowland_imputed.vcf \
+        --keep keepList_Gulf.txt \
+        --out  ${outDir}/${sampleID}_imputed_Gulf \
+        --recode 

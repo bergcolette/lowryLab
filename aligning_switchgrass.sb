@@ -1,9 +1,9 @@
 #!/bin/bash --login
 #SBATCH --job-name=aligning_AP13_DAC6
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=16
 #SBATCH --mem=48G
-#SBATCH --time=4:00:00
+#SBATCH --time=16:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout
@@ -63,16 +63,25 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 # samtools index ${fastqDir}/${sampleID}.RG.sort.bam
 
 # rename the bam 
-mv ${fastqDir}/${sampleID}.RG.sort.bam.realigned ${fastqDir}/${sampleID}.unsorted.bam
+# mv ${fastqDir}/${sampleID}.RG.sort.bam ${fastqDir}/${sampleID}.unsorted.bam
 
 # sort the bam 
-samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.bam ${fastqDir}/${sampleID}.unsorted.bam
+# samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.bam ${fastqDir}/${sampleID}.unsorted.bam
 
 # index the bam
-samtools index ${fastqDir}/${sampleID}.bam
+# samtools index ${fastqDir}/${sampleID}.bam
 
 # remove intermediate files 
 #rm ${outDir}/${sampleName}.sam
 #rm ${outDir}/${sampleName}*paired*
 #rm ${outDir}/${sampleName}*sort*
 #rm ${outDir}/${sampleName}*rmdup_metrix_fix*
+
+module purge
+module load GATK
+
+# call SNPs 
+gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" HaplotypeCaller \
+	-R ${genome} \
+   	-I ${fastqDir}/${sampleID}.bam \
+   	-O ${fastqDir}/${sampleID}.g.vcf.gz --emit-ref-confidence GVCF 
