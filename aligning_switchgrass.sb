@@ -81,7 +81,18 @@ module purge
 module load GATK
 
 # call SNPs 
-gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" HaplotypeCaller \
-	-R ${genome} \
-   	-I ${fastqDir}/${sampleID}.bam \
-   	-O ${fastqDir}/${sampleID}.g.vcf.gz --emit-ref-confidence GVCF 
+#gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" HaplotypeCaller \#
+#	-R ${genome} \
+   #	-I ${fastqDir}/${sampleID}.bam \
+   #	-O ${fastqDir}/${sampleID}.g.vcf.gz --emit-ref-confidence GVCF 
+
+gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
+    -V ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz \
+    -V ${fastqDir}/SRR3709212_${sampleID}.g.vcf.gz \
+    --genomicsdb-workspace-path ${fastqDir}/AP13_DAC6_${sampleID} \
+    -L ${sampleID}
+
+#gatk --java-options"-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" \
+ #  -R ${genome} \
+  # -V gendb://${fastqDir}/AP13_DAC6_${sampleID} \
+  # -O ${fastqDir}/AP13_DAC6_${sampleID}.vcf.gz
