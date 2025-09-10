@@ -1,0 +1,22 @@
+#!/bin/bash --login
+#SBATCH --job-name=altReferemce
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=48G
+#SBATCH --time=16:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+
+#load required modules
+module purge
+module load gatk
+
+# name the directory
+genomeDir="/mnt/scratch/bergcole/referenceGenome"
+vcfDir="/mnt/scratch/bergcole/ASE"
+
+ gatk FastaAlternateReferenceMaker \
+   -R ${genomeDir}/Pvirgatumvar_AP13HAP1_772_v6.0.fa \
+   -O ${genomeDir}/AP13_DAC6_pseudo.fa \
+   -V ${vcfDir}/DAC6.recode.vcf 

@@ -1,5 +1,5 @@
 #!/bin/bash --login
-#SBATCH --job-name=filter_vcfs
+#SBATCH --job-name=filter_AP13_DAC6_vcfs
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
 #SBATCH --time=8:00:0
@@ -14,33 +14,25 @@ echo "Running on node: `hostname`"
 # loading required modules
 
 module purge 
-module load VCFtools PLINK/2.00a3.7-gfbf-2023a
-
+module load VCFtools
 
 # script for filtering bcf files from the switchgrass diversity panel
 # these genotype files were initially processed by Paulo 
 
 # setting directory where bcfs are stored & where the filtered genotype files will go
-bcfDir="/mnt/research/glbrc_group/lowry_lab/WGS/genotyping_pi/population_L/chr_level"
-outDir="/mnt/scratch/bergcole/genotypes"
+outDir="/mnt/scratch/bergcole/ASE"
 
 # call to the chromosome array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
-# filter to SNPs only, max missing 0.01, maf > 0.05
-#vcftools --gzvcf ${bcfDir}/${sampleID}_pop.vcf.gz \
-#--min-alleles 2 \
-#--max-alleles 2 \
-#--max-missing 0.99 \
-#--keep keepList_all.txt \
-#--maf 0.05 \
-#--out  ${outDir}/${sampleID}_snps_filtered \
-#--recode 
+# filter to SNPs only
+vcftools --gzvcf ${outDir}/AP13_DAC6_${sampleID}.vcf.gz \
+	--min-alleles 2 \
+	--max-alleles 2 \
+	--minDP 8 \
+	--maf 0.5 \
+	--minQ 29 \
+	--max-missing 1 \
+	--recode \
+	--out ${outDir}/${sampleID}
 
-# convert to bed format and add SNP ids
-plink2 --vcf ${outDir}/${sampleID}_snps_filtered.recode.vcf --make-bed --set-all-var-ids @_# --allow-extra-chr --out ${outDir}/${sampleID}
-
-# now prune via LD 
-plink2 --bfile ${outDir}/${sampleID} --indep-pairwise 5000 5 0.2 --allow-extra-chr --out ${outDir}/${sampleID}
-
-#vcftools --vcf ${outDir}/${sampleID}_snps_filtered.recode.vcf --positions ${outDir}/${sampleID}.prune.in  --out ${outDir}/${sampleID}_lowland_pruned --recode

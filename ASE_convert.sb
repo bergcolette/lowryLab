@@ -1,0 +1,50 @@
+#!/bin/bash --login
+#SBATCH --job-name=ASE_convert
+#SBATCH --nodes=1
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout 
+#SBATCH --array=1-18
+
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+
+module purge 
+module load   GCC/12.2.0 BCFtools/1.17
+
+# matrix eQTL takes a simple genotype matrix, but the files are so big that it's hard to convert in python or R.
+# trying with awk. 
+
+vcfDir="/mnt/scratch/bergcole/ASE"
+
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+bgzip  ${vcfDir}/${sampleID}.recode.vcf
+
+# Extract genotype data
+bcftools index  ${vcfDir}/${sampleID}.recode.vcf.gz
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}.recode.vcf.gz > ${vcfDir}/${sampleID}_genotypes.txt
+
+# Create the genotype file (requires further processing of genotypes.txt)
+
+
+awk '{printf $1 "_" $2 "\t"
+for (i=5; i<=NF; i++) {
+    if ($i == "0/0" || $i == "0|0") {
+      printf "0"
+    } else if ($i == "0|1" || $i == "1|0" || $i == "1/0" || $i == "0/1") {
+      printf "1"
+    } else if ($i == "1|1" || $i == "1/1") {
+      printf "2"
+    }
+    if (i < NF) {
+      printf "\t"
+    }
+  }
+  printf "\n"
+}' ${vcfDir}/${sampleID}_genotypes.txt > ${vcfDir}/${sampleID}_genotype_matrix.txt

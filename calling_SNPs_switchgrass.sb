@@ -14,13 +14,17 @@ module load GATK
 
 # call to the chromosome array
 
-sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes_full.array)
 
 # naming variables for the directories
 fastqDir="/mnt/scratch/bergcole/ASE"
 
 # set the reference genome
 genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
+
+# call to the chromosome array
+# sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
 
 # call SNPs in first fastq
 #gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" HaplotypeCaller \
@@ -33,12 +37,17 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 #gatk --java-options -Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16 HaplotypeCaller \
 #        -R ${genome} \
 #        -I ${fastqDir}/SRR8440701.bam \
-#        -L ${sampleID} \
-#        -O ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz --emit-ref-confidence GVCF
+#        -L Chr03K \
+#        -O ${fastqDir}/SRR8440701_Chr03K.g.vcf.gz --emit-ref-confidence GVCF
 
-gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
-    -V ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz \
-    -V ${fastqDir}/SRR3709212_${sampleID}.g.vcf.gz \
-    --bypass-feature-reader \
-	--genomicsdb-workspace-path ${fastqDir}/AP13_DAC6_${sampleID} \
-    -L ${sampleID}
+#gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
+#    -V ${fastqDir}/gvcfs/SRR8440701_${sampleID}.g.vcf.gz \
+#    -V ${fastqDir}/gvcfs/SRR3709212_${sampleID}.g.vcf.gz \
+#	--genomicsdb-workspace-path ${fastqDir}/AP13_DAC6_${sampleID} \
+#    -L ${sampleID}
+
+gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenotypeGVCFs \
+	 -R ${genome} \
+   -V gendb://${fastqDir}/AP13_DAC6_${sampleID} \
+   -O ${fastqDir}/AP13_DAC6_${sampleID}.vcf.gz \
+   -L ${sampleID}
