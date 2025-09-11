@@ -2,15 +2,15 @@
 #SBATCH --job-name=altReferemce
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
-#SBATCH --mem=48G
-#SBATCH --time=16:00:00
+#SBATCH --mem=12G
+#SBATCH --time=4:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout
 
 #load required modules
 module purge
-module load gatk
+module load GATK
 
 # name the directory
 genomeDir="/mnt/scratch/bergcole/referenceGenome"

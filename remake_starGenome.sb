@@ -25,7 +25,7 @@ genDir="/mnt/scratch/bergcole/referenceGenome"
 STAR \
     --runThreadN 16 \
     --runMode genomeGenerate \
-    --genomeDir /mnt/scratch/bergcole/referenceGenome/genomeDir_noPseudo \
-    --genomeFastaFiles ${genDir}/Pvirgatumvar_AP13HAP1_772_v6.0.fa \
-    --sjdbGTFfile ${genDir}/Pvirgatumvar_AP13HAP1_772_v6.1.gene_exons.gtf \
+    --genomeDir /mnt/scratch/bergcole/referenceGenome \
+    --genomeFastaFiles ${genDir}/AP13_DAC6.fa \
+    --sjdbGTFfile ${genDir}/AP13_DAC6_edit.gtf \
     --sjdbOverhang 149 \

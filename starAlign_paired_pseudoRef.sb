@@ -21,8 +21,8 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 
 # set working directory
 
-fastqDir="/mnt/scratch/bergcole/ASE"
-genomeDir="/mnt/scratch/bergcole/referenceGenome/genomeDir_noPseudo"
+fastqDir="/mnt/scratch/bergcole/ASE/trimmed_fastqs"
+genomeDir="/mnt/scratch/bergcole/referenceGenome"
 
 STAR \
     --genomeDir ${genomeDir}  \
