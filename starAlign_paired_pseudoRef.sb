@@ -28,7 +28,7 @@ STAR \
     --genomeDir ${genomeDir}  \
     --readFilesIn ${fastqDir}/${sampleID}.prepped.R1.fastq.paired.fq ${fastqDir}/${sampleID}.prepped.R2.fastq.paired.fq \
     --outMultimapperOrder Random \
-    --outSAMmultNmax 1 \
+    --outSAMmultNmax 1 --quantMode GeneCounts \
     --outSAMtype BAM SortedByCoordinate \
     --outFileNamePrefix ${fastqDir}/${sampleID}
 
