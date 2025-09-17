@@ -1,0 +1,60 @@
+#!/bin/bash --login
+#SBATCH --job-name=running_gemma_MI
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=6:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+
+module purge
+module load Miniforge3
+conda activate switchgrass_eGWAS
+
+genotypeDir="/mnt/scratch/bergcole/genotypes"
+
+# making the kinship matrices
+gemma -gk -bfile ${genotypeDir}/allChroms_Atlantic -o Atlantic
+gemma -gk -bfile ${genotypeDir}/allChroms_Midwest -o Midwest
+gemma -gk -bfile ${genotypeDir}/allChroms_Gulf -o Gulf
+
+# running gemma (separately for each population)
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 1 -lmm 4 -k output/Midwest.cXX.txt -o GR1_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 2 -lmm 4 -k output/Midwest.cXX.txt -o GR50_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 3 -lmm 4 -k output/Midwest.cXX.txt -o GR100_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 4 -lmm 4 -k output/Midwest.cXX.txt -o EM1_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 5 -lmm 4 -k output/Midwest.cXX.txt -o EM50_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 6 -lmm 4 -k output/Midwest.cXX.txt -o FL1_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 7 -lmm 4 -k output/Midwest.cXX.txt -o FL50_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 8 -lmm 4 -k output/Midwest.cXX.txt -o TC_EOS_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 9 -lmm 4 -k output/Midwest.cXX.txt -o HT_PAN_EOS_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 10 -lmm 4 -k output/Midwest.cXX.txt -o MOISTURE_Atlantic_MI
+gemma -bfile ${genotypeDir}/allChroms_Atlantic -n 11 -lmm 4 -k output/Midwest.cXX.txt -o BIOMASS_Atlantic_MI
+
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 1 -lmm 4 -k output/Midwest.cXX.txt -o GR1_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 2 -lmm 4 -k output/Midwest.cXX.txt -o GR50_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 3 -lmm 4 -k output/Midwest.cXX.txt -o GR100_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 4 -lmm 4 -k output/Midwest.cXX.txt -o EM1_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 5 -lmm 4 -k output/Midwest.cXX.txt -o EM50_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 6 -lmm 4 -k output/Midwest.cXX.txt -o FL1_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 7 -lmm 4 -k output/Midwest.cXX.txt -o FL50_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 8 -lmm 4 -k output/Midwest.cXX.txt -o TC_EOS_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 9 -lmm 4 -k output/Midwest.cXX.txt -o HT_PAN_EOS_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 10 -lmm 4 -k output/Midwest.cXX.txt -o MOISTURE_Midwest_MI
+gemma -bfile ${genotypeDir}/allChroms_Midwest -n 11 -lmm 4 -k output/Midwest.cXX.txt -o BIOMASS_Midwest_MI
+
+
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 1 -lmm 4 -k output/Gulf.cXX.txt -o GR1_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 2 -lmm 4 -k output/Gulf.cXX.txt -o GR50_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 3 -lmm 4 -k output/Gulf.cXX.txt -o GR100_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 4 -lmm 4 -k output/Gulf.cXX.txt -o EM1_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 5 -lmm 4 -k output/Gulf.cXX.txt -o EM50_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 6 -lmm 4 -k output/Gulf.cXX.txt -o FL1_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 7 -lmm 4 -k output/Gulf.cXX.txt -o FL50_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 8 -lmm 4 -k output/Gulf.cXX.txt -o TC_EOS_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 9 -lmm 4 -k output/Gulf.cXX.txt -o HT_PAN_EOS_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 10 -lmm 4 -k output/Gulf.cXX.txt -o MOISTURE_Gulf_MI
+gemma -bfile ${genotypeDir}/allChroms_Gulf -n 11 -lmm 4 -k output/Gulf.cXX.txt -o BIOMASS_Gulf_MI
+
+
+
