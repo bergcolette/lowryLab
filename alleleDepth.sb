@@ -15,6 +15,7 @@ echo "Running on node: `hostname`"
 # purge & load necessary modules 
 module purge
 module load BCFtools
+module load picard
 
 # call to the RNA fastq array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' ASE_samples.array)
@@ -24,10 +25,30 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 data="/mnt/scratch/bergcole/ASE/trimmed_fastqs"
 genomeDir="/mnt/scratch/bergcole/referenceGenome"
 
+java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups I=${data}/${sampleID}Aligned.sortedByCoord.out.bam O=${data}/${sampleID}.RG.bam RGID=${sampleID} RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=${sampleID}
+
+
 # calling the allele depth in the bams created by STAR
-bcftools mpileup -o ${data}/${sampleID}.bcf \
--f ${genomeDir}/Pvirgatumvar_AP13HAP1_772_v6.0.fa \
---annotate FORMAT/AD \
-${data}/${sampleID}Aligned.sortedByCoord.RG.bam 
+#bcftools mpileup -o ${data}/${sampleID}.bcf \
+#-f ${genomeDir}/Pvirgatumvar_AP13HAP1_772_v6.0.fa \
+#--annotate FORMAT/AD \
+#${data}/${sampleID}Aligned.sortedByCoord.RG.bam 
+
+# filter the resulting bcfs to only retain heterozygous sites 
+
+# bcftools index ${data}/${sampleID}.bcf
+# bcftools view -R F1_positions_tabbed.txt ${data}/${sampleID}.bcf > ${data}/${sampleID}_het.bcf
+
+# bgzip ${data}/${sampleID}_het.bcf
+
+#bcftools index ${data}/${sampleID}_het.bcf.gz
+# bcftools view -i 'INFO/DP>5' ${data}/KBS_F1s.bcf.gz > ${data}/KBS_F1s_filt.bcf
+
+# bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t[%DP\t%AD]\n' ${data}/${sampleID}_depthFilt.bcf.gz  > ${data}/${sampleID}.txt
+
+# now filter 
+
+# awk '$4 != "<*>"' ${data}/${sampleID}.txt > ${data}/${sampleID}_filt.txt 
+
 
 
