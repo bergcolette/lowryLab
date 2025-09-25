@@ -25,26 +25,26 @@ fastqDir="/mnt/scratch/bergcole/ASE"
 # set the reference genome
 genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
+# bzip2 -d ${fastqDir}/IKGK.R1.fastq.bz2
+# bzip2 -d ${fastqDir}/IKGK.R2.fastq.bz2
 
 # trim the adapter reads with Trimmomatic 
 # this takes paired end samples in the vcfDir and outputs paired fastqs
 
-java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.39.jar \
-    PE \
-    -threads 12 \
-    -phred33 \
-    -trimlog ${outDir}/trimlog.txt \
-    ${fastqDir}/${sampleName}_1.fastq  ${fastqDir}/${sampleName}_2.fastq \
-    ${fastqDir}/${sampleName}.1.paired.fastq ${fastqDir}/${sampleName}.1.unpaired.fastq  \
-    ${fastqDir}/${sampleName}.2.paired.fastq ${fastqDir}/${sampleName}.2.unpaired.fastq  \
-    $EBROOTTRIMMOMATIC/adapters/TruSeq3-PE.fa:2:30:7  # you may need to adjust this depending on how they were sequenced
+#java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.39.jar \
+#    PE \
+#    -threads 12 \
+#    -phred33 \
+#     ${fastqDir}/IKGK.R1.fastq  ${fastqDir}/IKGK.R2.fastq \
+#     ${fastqDir}/IKGK.1.paired.fastq ${fastqDir}/IKGK1.unpaired.fastq  \
+#     ${fastqDir}/IKGK.2.paired.fastq ${fastqDir}/IKGK.2.unpaired.fastq  ILLUMINACLIP:$EBROOTTRIMMOMATIC/adapters/TruSeq3-PE.fa:2:30:7  # you may need to adjust this depending on how they were sequenced
 
 # align the trimmed reads to the genome 
 
-# bwa-mem2 mem -t 12 ${genome} ${fastqDir}SRR3709212.1.paired.fastq ${fastqDir}SRR3709212.1.paired.fastq > ${fastqDir}/SRR3709212.sam 
+bwa-mem2 mem -t 12 ${genome} ${fastqDir}/IKGK.1.paired.fastq ${fastqDir}/IKGK.2.paired.fastq > ${fastqDir}/IKGK.sam 
 
 # filter to minimum quality of 29 with samtools view 
-# samtools view -bS ${fastqDir}/${sampleID}.sam -q 29 > ${fastqDir}/${sampleID}.bam
+samtools view -bS ${fastqDir}/IKGK.sam -q 29 > ${fastqDir}/IKGK.bam
 
 # sort the resulting bam 
 # samtools sort -T ${sampleID} -o ${fastqDir}/${sampleID}.sort.bam ${fastqDir}/${sampleID}.bam
@@ -85,11 +85,11 @@ module load GATK
    #	-I ${fastqDir}/${sampleID}.bam \
    #	-O ${fastqDir}/${sampleID}.g.vcf.gz --emit-ref-confidence GVCF 
 
-gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
-    -V ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz \
-    -V ${fastqDir}/SRR3709212_${sampleID}.g.vcf.gz \
-    --genomicsdb-workspace-path ${fastqDir}/AP13_DAC6_${sampleID} \
-    -L ${sampleID}
+#gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
+#    -V ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz \
+#    -V ${fastqDir}/SRR3709212_${sampleID}.g.vcf.gz \
+#    --genomicsdb-workspace-path ${fastqDir}/AP13_DAC6_${sampleID} \
+#    -L ${sampleID}
 
 #gatk --java-options"-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" \
  #  -R ${genome} \

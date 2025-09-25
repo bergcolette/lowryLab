@@ -9,8 +9,8 @@
 #SBATCH --output=%x-%j.SLURMout
 #SBATCH --array=1-28
 
-#module purge
-#module load SAMtools/1.19.2-GCC-13.2.0
+module purge
+module load SAMtools/1.19.2-GCC-13.2.0
 
 # naming variables for the directories
 fastqDir="/mnt/scratch/bergcole/ASE/trimmed_fastqs"
@@ -22,7 +22,7 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' ASE_samples.array)
 
 # index bams 
-#samtools index  ${fastqDir}/${sampleID}.RG.bam
+samtools index  ${fastqDir}/${sampleID}.RG.bam
 
 module purge
 module load GATK
