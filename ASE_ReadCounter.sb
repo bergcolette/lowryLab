@@ -28,21 +28,20 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 #java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
 #	-I ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.out.bam \
 #	-O ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.RG.bam \
-#	-RGSM BUWGY \
+#	-RGSM ${sampleID} \
 #	-RGLB lib1 \
 #	-RGPL ILLUMINA \
 #	-RGPU unit1
 
 
 gatk IndexFeatureFile \
-    -I ${data}/vcfs/${sampleID}.vcf 
+    -I ${data}/vcfs/${sampleID}_snps.vcf 
 
 gatk ASEReadCounter \
     -R ${genome}  \
-    --variant ${data}/vcfs/${sampleID}.vcf \
+    --variant ${data}/vcfs/${sampleID}_snps.vcf \
     --input ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.RG.bam
 
-ASE_ReadCounter.sb
 
 
 

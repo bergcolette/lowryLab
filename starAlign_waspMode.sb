@@ -24,9 +24,12 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 fastqDir="/mnt/scratch/bergcole/ASE/trimmed_fastqs"
 genomeDir="/mnt/scratch/bergcole/referenceGenome"
 
+gunzip ${fastqDir}/${sampleID}.prepped.R1.fastq.gz
+gunzip ${fastqDir}/${sampleID}.prepped.R2.fastq.gz
+
 STAR \
     --genomeDir ${genomeDir}  \
-    --readFilesIn ${fastqDir}/${sampleID}.prepped.R1.fastq.paired.fq ${fastqDir}/${sampleID}.prepped.R2.fastq.paired.fq \
+    --readFilesIn ${fastqDir}/${sampleID}.prepped.R1.fastq ${fastqDir}/${sampleID}.prepped.R2.fastq \
     --outMultimapperOrder Random  --varVCFfile /mnt/scratch/bergcole/ASE/vcfs/${sampleID}.vcf  --waspOutputMode SAMtag \
     --outSAMtype BAM SortedByCoordinate \
     --outFileNamePrefix ${fastqDir}/${sampleID}
