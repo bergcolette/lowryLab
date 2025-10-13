@@ -1,0 +1,66 @@
+#!/bin/bash --login
+#SBATCH --job-name=genotype_AP13
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=24
+#SBATCH --mem=48G
+#SBATCH --time=36:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+# call to the fastq array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# naming variables for the directories
+fastqDir="/mnt/scratch/bergcole/genotypes"
+
+# set the reference genome
+genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
+
+module purge
+module load GATK picard BCFtools PLINK/2.00a3.7-gfbf-2023a VCFtools
+
+# print ${sampleID}
+
+# gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=24" GenotypeGVCFs \
+#   -R ${genome} \
+#   -V ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz \
+#   -O ${fastqDir}/SRR8440701_${sampleID}.vcf.gz
+
+
+#gatk IndexFeatureFile \
+#    -I ${fastqDir}/SRR8440701_${sampleID}.vcf.gz
+
+#java -jar $EBROOTPICARD/picard.jar MergeVcfs \
+#          I=${fastqDir}/SRR8440701_${sampleID}.vcf.gz \
+#          I=${fastqDir}/${sampleID}_snps_filtered.recode.vcf.gz \
+#          O=${sampleID}_AP13merge.vcf.gz
+
+# bgzip ${fastqDir}/${sampleID}_snps_filtered.recode.vcf
+
+# bcftools index  ${fastqDir}/${sampleID}_snps_filtered.recode.vcf.gz
+
+# bcftools merge ${fastqDir}/SRR8440701_${sampleID}.vcf.gz \
+#  ${fastqDir}/${sampleID}_snps_filtered.recode.vcf.gz -Oz -o ${fastqDir}/${sampleID}_mergeAP13.vcf.gz
+
+# LD filtering 
+# plink --vcf ${fastqDir}/${sampleID}_mergeAP13.vcf.gz --indep-pairwise 500 500 0.5  --out ${fastqDir}/${sampleID} --allow-extra-chr
+
+# vcftools --gzvcf ${fastqDir}/${sampleID}_mergeAP13.vcf.gz \
+#	--positions ${fastqDir}/allChroms_posList.012.pos  \
+#	--out ${fastqDir}/${sampleID}_LDfilt --recode
+
+
+vcftools --vcf ${fastqDir}/${sampleID}_LDfilt.recode.vcf --min-alleles 2 --max-alleles 2 --out ${fastqDir}/${sampleID}_biallelic
+
+module purge
+module load Beagle/5.4.22Jul22.46e-Java-11 GCC/12.2.0
+
+# running beagle for lowland vcfs
+java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar \
+    gt=${fastqDir}/${sampleID}_biallelic.recode.vcf \
+    out=${fastqDir}/${sampleID}_imp.vcf chrom=${sampleID}

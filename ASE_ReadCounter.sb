@@ -25,22 +25,26 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 data="/mnt/scratch/bergcole/ASE"
 genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
-#java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-#	-I ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.out.bam \
-#	-O ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.RG.bam \
-#	-RGSM ${sampleID} \
-#	-RGLB lib1 \
-#	-RGPL ILLUMINA \
-#	-RGPU unit1
+java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
+	-I ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.out.bam \
+	-O ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.RG.bam \
+	-RGSM ${sampleID} \
+	-RGLB lib1 \
+	-RGPL ILLUMINA \
+	-RGPU unit1
 
 
-gatk IndexFeatureFile \
-    -I ${data}/vcfs/${sampleID}_snps.vcf 
+# gatk IndexFeatureFile \
+#    -I ${data}/vcfs/${sampleID}_snps.vcf 
 
 gatk ASEReadCounter \
     -R ${genome}  \
     --variant ${data}/vcfs/${sampleID}_snps.vcf \
-    --input ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.RG.bam
+    --input ${data}/trimmed_fastqs/${sampleID}Aligned.sortedByCoord.RG.bam \
+	-O ${data}/${sampleID}.table
+
+
+
 
 
 
