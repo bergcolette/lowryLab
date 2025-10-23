@@ -1,0 +1,49 @@
+#!/bin/bash --login
+#SBATCH --job-name=LDfilt
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+module purge 
+module load PLINK/2.00a3.7-gfbf-2023a
+
+# script for filtering vcf files for the diversity panel
+# these merged files are combined (bcfs from Paulo + AP13 added from SRA, all aligned to AP13v6H1)
+
+# setting directory where vcfs are stored & where the filtered genotype files will go
+vcfDir="/mnt/scratch/bergcole/genotypes"
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# now using plink to set var ids 
+# plink2 --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+#	--allow-extra-chr \
+#	--set-all-var-ids @:# \
+#	--make-bed --out ${vcfDir}/${sampleID}_varIDs
+
+# LD filtering
+#plink2 --allow-extra-chr \
+#	--indep-pairwise 5000 50 0.2 \
+#	--out ${vcfDir}/${sampleID} \
+#	--bfile ${vcfDir}/${sampleID}_varIDs
+
+# reformat the prune.in files to fit vcftools
+# sed 's/:/\t/' ${vcfDir}/${sampleID}.prune.in > ${vcfDir}/${sampleID}_LD_pos.txt
+
+# filter based on the LD pruned vcfs
+module purge
+module load VCFtools
+
+vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+	--positions ${vcfDir}/${sampleID}.prune.in_LDpositions.txt \
+	--out  ${vcfDir}/${sampleID}_LDfilt \
+	--recode 
+

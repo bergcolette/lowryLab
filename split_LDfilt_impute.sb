@@ -1,0 +1,124 @@
+#!/bin/bash --login
+#SBATCH --job-name=split_impute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18
+#SBATCH --mem=96G
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+module purge 
+module load VCFtools PLINK/2.00a3.7-gfbf-2023a
+
+# split and impute files 
+
+# setting directory where vcfs are stored & where the filtered genotype files will go
+vcfDir="/mnt/scratch/bergcole/genotypes"
+
+# call to the chromosome array
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# split into Midwest 
+#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+#	--keep Midwest.txt \
+#	--maf 0.05 \
+#	--min-alleles 2 \
+#	--max-alleles 2 \
+#	--remove-indels \
+#	--out ${vcfDir}/${sampleID}_Midwest \
+#	--recode 
+
+# split into Atlantic
+#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+ #       --keep Atlantic.txt \
+#	--maf 0.05 \
+    #    --min-alleles 2 \
+   #     --max-alleles 2 \
+  #      --remove-indels \
+ #       --out ${vcfDir}/${sampleID}_Atlantic \
+#        --recode 
+
+# split into Gulf
+#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+ #       --keep Gulf.txt \
+#	--maf 0.05 \
+     #   --min-alleles 2 \
+    #    --max-alleles 2 \
+   #     --remove-indels \
+  #      --out ${vcfDir}/${sampleID}_Gulf \
+ #       --recode 
+
+# now using plink to set var ids for all 3 populations
+#plink2 --vcf ${vcfDir}/${sampleID}_Midwest.recode.vcf \
+   #    --allow-extra-chr \
+  #     --set-all-var-ids @:# \
+ #      --make-bed --out ${vcfDir}/${sampleID}_Midwest_varIDs
+
+#plink2 --vcf ${vcfDir}/${sampleID}_Atlantic.recode.vcf \
+   #    --allow-extra-chr \
+  #     --set-all-var-ids @:# \
+ #      --make-bed --out ${vcfDir}/${sampleID}_Atlantic_varIDs
+
+#plink2 --vcf ${vcfDir}/${sampleID}_Gulf.recode.vcf \
+ #      --allow-extra-chr \
+  #     --set-all-var-ids @:# \
+   #    --make-bed --out ${vcfDir}/${sampleID}_Gulf_varIDs
+
+# LD filtering
+#plink2 --allow-extra-chr \
+ #      --indep-pairwise 5000 50 0.5 \
+  #     --out ${vcfDir}/${sampleID}_Midwest \
+   #    --bfile ${vcfDir}/${sampleID}_Midwest_varIDs
+
+#plink2 --allow-extra-chr \
+ #      --indep-pairwise 5000 50 0.5 \
+  #     --out ${vcfDir}/${sampleID}_Atlantic \
+   #    --bfile ${vcfDir}/${sampleID}_Atlantic_varIDs
+
+#plink2 --allow-extra-chr \
+ #      --indep-pairwise 5000 50 0.5 \
+  #     --out ${vcfDir}/${sampleID}_Gulf \
+   #    --bfile ${vcfDir}/${sampleID}_Gulf_varIDs
+
+# editing prune.in files to be tab separated
+# bash ${vcfDir}/format_LDpos.sh
+
+
+# filtering by LD prune positions for each population
+# vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+  #       --positions ${vcfDir}/${sampleID}_Midwest.prune.in_LDpositions.txt \
+   #      --out  ${vcfDir}/${sampleID}_LDfilt_Midwest \
+    #     --recode
+
+#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+ #        --positions ${vcfDir}/${sampleID}_Atlantic.prune.in_LDpositions.txt \
+  #       --out  ${vcfDir}/${sampleID}_LDfilt_Atlantic \
+   #      --recode
+
+#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+ #        --positions ${vcfDir}/${sampleID}_Gulf.prune.in_LDpositions.txt \
+  #       --out  ${vcfDir}/${sampleID}_LDfilt_Gulf \
+   #      --recode
+
+module purge
+module load Beagle/5.4.22Jul22.46e-Java-11 GCC/12.2.0
+
+# running beagle for Atlantic vcfs
+java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar \
+    gt=${vcfDir}/${sampleID}_LDfilt_Atlantic.recode.vcf \
+    out=${vcfDir}/${sampleID}_LDfilt_Atlantic_imputed chrom=${sampleID}
+
+# running beagle for Gulf vcfs
+java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar \
+    gt=${vcfDir}/${sampleID}_LDfilt_Gulf.recode.vcf \
+    out=${vcfDir}/${sampleID}_LDfilt_Gulf_imputed chrom=${sampleID}
+
+# running beagle for Midwest vcfs
+java -Xmx750g -jar ${EBROOTBEAGLE}/beagle.jar \
+    gt=${vcfDir}/${sampleID}_LDfilt_Midwest.recode.vcf \
+    out=${vcfDir}/${sampleID}_LDfilt_Midwest_imputed chrom=${sampleID}

@@ -24,13 +24,25 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 fastqDir="/mnt/scratch/bergcole/ASE/trimmed_fastqs"
 genomeDir="/mnt/scratch/bergcole/referenceGenome"
 
-gunzip ${fastqDir}/${sampleID}.prepped.R1.fastq.gz
-gunzip ${fastqDir}/${sampleID}.prepped.R2.fastq.gz
+# gunzip ${fastqDir}/${sampleID}.prepped.R1.fastq.gz
+# gunzip ${fastqDir}/${sampleID}.prepped.R2.fastq.gz
 
-STAR \
-    --genomeDir ${genomeDir}  \
-    --readFilesIn ${fastqDir}/${sampleID}.prepped.R1.fastq ${fastqDir}/${sampleID}.prepped.R2.fastq \
-    --outMultimapperOrder Random  --varVCFfile /mnt/scratch/bergcole/ASE/vcfs/${sampleID}.vcf  --waspOutputMode SAMtag \
-    --outSAMtype BAM SortedByCoordinate \
-    --outFileNamePrefix ${fastqDir}/${sampleID}
+# STAR \
+#    --genomeDir ${genomeDir}  \
+#    --readFilesIn ${fastqDir}/${sampleID}.prepped.R1.fastq ${fastqDir}/${sampleID}.prepped.R2.fastq \
+#    --outMultimapperOrder Random  --varVCFfile /mnt/scratch/bergcole/ASE/vcfs/${sampleID}.vcf  --waspOutputMode SAMtag \
+#    --outSAMtype BAM SortedByCoordinate \
+#    --outFileNamePrefix ${fastqDir}/${sampleID}
+
+
+# WASP filter the bams 
+
+module purge
+module load      SAMtools/1.19.2-GCC-13.2.0
+
+
+# using samtools, outputting a bam (-b flag) and using the 'passed wasp filtering' tag added by STAR
+samtools view -b -d vW:i:1 ${fastqDir}/${sampleID}Aligned.sortedByCoord.RG.bam > ${fastqDir}/${sampleID}_waspFiltered.bam
+
+
 

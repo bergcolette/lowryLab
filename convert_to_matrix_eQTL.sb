@@ -1,49 +1,34 @@
 #!/bin/bash --login
-# Job name:
 #SBATCH --job-name=covert_vcf_to_genMatrix
-
-# Number of nodes
 #SBATCH --nodes=1
-#
-# Number of tasks to run on each node
 #SBATCH --ntasks-per-node=16
-#
-#
-# Wall time (e.g. "minutes", "hours:minutes:seconds", "days-hours", "days-hours:minutes"):
 #SBATCH --time=1:00:00
-#
-# Mail type:
 #SBATCH --mail-type=ALL
-#
-# Mail user:
 #SBATCH --mail-user=bergcole@msu.edu
-#
-# Standard out and error:
 #SBATCH --output=%x-%j.SLURMout
-# 
-# indicate that I'm using an array
 #SBATCH --array=1-18
-
 
 echo "JobID: $SLURM_JOB_ID"
 echo "Running on node: `hostname`"
 
-
 module purge 
-module load   GCC/12.2.0 BCFtools/1.17
+module load tabixpp/1.1.2-GCC-12.3.0
 
-# matrix eQTL takes a simple genotype matrix, but the files are so big that it's hard to convert in python or R.
-# trying with awk. 
+# matrix eQTL takes a simple genotype matrix--converting to matrix eQTL format with awk
 
-vcfDir="/mnt/scratch/bergcole/filtered_switchgrass_genotypes/filt_99/filt99_imputed"
-
+vcfDir="/mnt/scratch/bergcole/genotypes"
 
 # call to the chromosome array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
+# index the vcfs 
+tabix ${vcfDir}/${sampleID}_LDfilt_Atlantic_imputed.vcf.gz
+
+module purge
+module load BCFtools/1.17-GCC-12.2.0 
 
 # Extract genotype data
-bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}_maf05.recode.vcf.gz > ${vcfDir}/${sampleID}_genotypes.txt
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}_LDfilt_Gulf_imputed.vcf.gz > ${vcfDir}/${sampleID}_Gulf_genotypes.txt
 
 # Create the genotype file (requires further processing of genotypes.txt)
 
@@ -62,4 +47,4 @@ for (i=5; i<=NF; i++) {
     }
   }
   printf "\n"
-}' ${vcfDir}/${sampleID}_genotypes.txt > ${vcfDir}/${sampleID}_genotype_matrix.txt
+}' ${vcfDir}/${sampleID}_Gulf_genotypes.txt > ${vcfDir}/${sampleID}_Gulf_matrix.txt
