@@ -90,20 +90,23 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 
 
 # filtering by LD prune positions for each population
-# vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
-  #       --positions ${vcfDir}/${sampleID}_Midwest.prune.in_LDpositions.txt \
-   #      --out  ${vcfDir}/${sampleID}_LDfilt_Midwest \
-    #     --recode
+vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+	--keep Midwest.txt
+        --positions ${vcfDir}/${sampleID}_Midwest.prune.in_LDpositions.txt \
+        --out  ${vcfDir}/${sampleID}_LDfilt_Midwest \
+        --recode
 
-#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
- #        --positions ${vcfDir}/${sampleID}_Atlantic.prune.in_LDpositions.txt \
-  #       --out  ${vcfDir}/${sampleID}_LDfilt_Atlantic \
-   #      --recode
+vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+         --positions ${vcfDir}/${sampleID}_Atlantic.prune.in_LDpositions.txt \
+         --out  ${vcfDir}/${sampleID}_LDfilt_Atlantic \
+        --keep Atlantic.txt \ 
+	--recode
 
-#vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
- #        --positions ${vcfDir}/${sampleID}_Gulf.prune.in_LDpositions.txt \
-  #       --out  ${vcfDir}/${sampleID}_LDfilt_Gulf \
-   #      --recode
+vcftools --vcf ${vcfDir}/${sampleID}_filt_withAP13.recode.vcf \
+         --positions ${vcfDir}/${sampleID}_Gulf.prune.in_LDpositions.txt \
+         --out  ${vcfDir}/${sampleID}_LDfilt_Gulf \
+         --keep Gulf.txt \
+	--recode
 
 module purge
 module load Beagle/5.4.22Jul22.46e-Java-11 GCC/12.2.0

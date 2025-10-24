@@ -28,7 +28,7 @@ module purge
 module load BCFtools/1.17-GCC-12.2.0 
 
 # Extract genotype data
-bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}_LDfilt_Gulf_imputed.vcf.gz > ${vcfDir}/${sampleID}_Gulf_genotypes.txt
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' ${vcfDir}/${sampleID}_LDfilt_Midwest_imputed.vcf.gz > ${vcfDir}/${sampleID}_Midwest_genotypes.txt
 
 # Create the genotype file (requires further processing of genotypes.txt)
 
@@ -47,4 +47,4 @@ for (i=5; i<=NF; i++) {
     }
   }
   printf "\n"
-}' ${vcfDir}/${sampleID}_Gulf_genotypes.txt > ${vcfDir}/${sampleID}_Gulf_matrix.txt
+}' ${vcfDir}/${sampleID}_Midwest_genotypes.txt > ${vcfDir}/${sampleID}_Midwest_matrix.txt
