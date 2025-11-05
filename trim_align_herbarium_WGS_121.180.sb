@@ -1,9 +1,9 @@
 #!/bin/bash --login
-#SBATCH --job-name=trim+align_herbarium_specs_121.180
+#SBATCH --job-name=trim+align_herbarium_specs_121.180_10.31
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=48
 #SBATCH --mem=48G
-#SBATCH --time=30:00:00
+#SBATCH --time=96:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=bergcole@msu.edu
 #SBATCH --output=%x-%j.SLURMout

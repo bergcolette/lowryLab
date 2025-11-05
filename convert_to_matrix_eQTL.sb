@@ -22,7 +22,7 @@ vcfDir="/mnt/scratch/bergcole/genotypes"
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
 
 # index the vcfs 
-tabix ${vcfDir}/${sampleID}_LDfilt_Atlantic_imputed.vcf.gz
+tabix ${vcfDir}/${sampleID}_LDfilt_Midwest_imputed.vcf.gz
 
 module purge
 module load BCFtools/1.17-GCC-12.2.0 
