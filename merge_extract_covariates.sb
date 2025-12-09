@@ -1,0 +1,91 @@
+#!/bin/bash --login
+#SBATCH --job-name=merge_extract_covariates
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+vcfDir="/mnt/scratch/bergcole/genotypes"
+
+module purge
+module load BCFtools/1.22-GCC-13.3.0
+
+# concatenate midwest genotypes 
+bcftools concat \
+    ${vcfDir}/Chr01K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr02K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr03K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr04K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr05K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr06K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr07K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr08K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr09K_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr01N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr02N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr03N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr04N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr05N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr06N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr07N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr08N_LDfilt_Midwest_imputed.vcf.gz \
+    ${vcfDir}/Chr09N_LDfilt_Midwest_imputed.vcf.gz \
+    -Oz -o${vcfDir}/Midwest_allChroms.vcf.gz
+
+# concatenate Gulf genotypes
+bcftools concat \
+    ${vcfDir}/Chr01K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr02K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr03K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr04K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr05K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr06K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr07K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr08K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr09K_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr01N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr02N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr03N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr04N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr05N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr06N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr07N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr08N_LDfilt_Gulf_imputed.vcf.gz \
+    ${vcfDir}/Chr09N_LDfilt_Gulf_imputed.vcf.gz \
+    -Oz -o ${vcfDir}/Gulf_allChroms.vcf.gz
+
+# concatenate Atlantic genotypes
+bcftools concat \
+    ${vcfDir}/Chr01K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr02K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr03K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr04K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr05K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr06K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr07K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr08K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr09K_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr01N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr02N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr03N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr04N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr05N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr06N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr07N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr08N_LDfilt_Atlantic_imputed.vcf.gz \
+    ${vcfDir}/Chr09N_LDfilt_Atlantic_imputed.vcf.gz \
+    -Oz -o ${vcfDir}/Atlantic_allChroms.vcf.gz
+
+module purge
+module load PLINK/2.00a3.7-gfbf-2023a
+
+#take the concatentated genotypes and run a PCA for covariates
+
+plink2 --vcf ${vcfDir}/Midwest_allChroms.vcf.gz --allow-extra-chr --out ${vcfDir}/Midwest_allChroms --pca
+plink2 --vcf ${vcfDir}/Atlantic_allChroms.vcf.gz --allow-extra-chr --out ${vcfDir}/Atlantic_allChroms --pca
+plink2 --vcf ${vcfDir}/Gulf_allChroms.vcf.gz --allow-extra-chr --out ${vcfDir}/Gulf_allChroms --pca

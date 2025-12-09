@@ -41,8 +41,10 @@ module purge
 module load      SAMtools/1.19.2-GCC-13.2.0
 
 
-# using samtools, outputting a bam (-b flag) and using the 'passed wasp filtering' tag added by STAR
-samtools view -b -d vW:i:1 ${fastqDir}/${sampleID}Aligned.sortedByCoord.RG.bam > ${fastqDir}/${sampleID}_waspFiltered.bam
+# using samtools and and filtering with the vW ('passed wasp filtering') tag added by STAR
+# samtools view -h ${fastqDir}/${sampleID}Aligned.sortedByCoord.RG.bam | awk '/^@/ {print} !/^@/ && /vW/' > ${fastqDir}/${sampleID}_waspFiltered.sam
 
 
+# converting the sam output file to bam 
 
+samtools view -b -S ${fastqDir}/${sampleID}_waspFiltered.sam > ${fastqDir}/${sampleID}_filt.bam

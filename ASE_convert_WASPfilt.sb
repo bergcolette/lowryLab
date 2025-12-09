@@ -1,5 +1,5 @@
 #!/bin/bash --login
-#SBATCH --job-name=gatk_ASEReadCounter
+#SBATCH --job-name=ASE_waspConvert
 #SBATCH --nodes=1
 #SBATCH --time=4:00:00
 #SBATCH --mem=12GB 
@@ -12,11 +12,6 @@
 echo "JobID: $SLURM_JOB_ID"
 echo "Running on node: `hostname`"
 
-# purge & load necessary modules 
-module purge 
-module load picard
-module load GATK
-
 # call to the RNA fastq array
 sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' ASE_samples.array)
 
@@ -25,28 +20,15 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 data="/mnt/scratch/bergcole/ASE"
 genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-	-I ${data}/trimmed_fastqs/${sampleID}_filt.bam \
-	-O ${data}/trimmed_fastqs/${sampleID}.RG.bam \
-	-RGSM ${sampleID} \
-	-RGLB lib1 \
-	-RGPL ILLUMINA \
-	-RGPU unit1
+# load necessary modules
+module purge
+module load SAMtools/1.18-GCC-12.3.0
 
+# convert wasp filtered sam file to bam file
+samtools view -b -S ${data}/trimmed_fastqs/${sampleID}_waspFiltered.sam > ${data}/${sampleID}_waspFiltered.bam
 
-#gatk IndexFeatureFile \
-   # -I ${data}/vcfs/${sampleID}_snps.vcf 
+# sort resulting bam
+samtools sort  ${data}/${sampleID}_waspFiltered.bam > ${data}/${sampleID}.sort.wasp.bam
 
-gatk ASEReadCounter \
-    -R ${genome}  \
-    --variant ${data}/vcfs/${sampleID}_snps.vcf \
-    --input ${data}/trimmed_fastqs/${sampleID}.RG.bam \
-	-O ${data}/${sampleID}.table
-
-
-
-
-
-
-
-
+# index sorted bam
+samtools index ${data}/${sampleID}.sort.wasp.bam
