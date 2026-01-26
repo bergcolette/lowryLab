@@ -1,0 +1,124 @@
+#!/bin/bash --login
+#SBATCH --job-name=herbarium_vcf
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=48
+#SBATCH --mem=48G
+#SBATCH --time=12:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18
+
+echo "JobID: $SLURM_JOB_ID"
+echo "Running on node: `hostname`"
+
+module purge
+module load GATK
+
+# call to the chromosome
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# naming variables for the directories
+fastqDir="/mnt/scratch/bergcole/herbarium_WGS"
+
+# set the reference genome
+genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
+
+gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
+	-V ${fastqDir}/BRK1.g.vcf.gz \
+	-V ${fastqDir}/DNB2.g.vcf.gz \
+	-V ${fastqDir}/H10.g.vcf.gz \
+	-V ${fastqDir}/H12.g.vcf.gz \
+	-V ${fastqDir}/H14.g.vcf.gz \
+	-V ${fastqDir}/H18.g.vcf.gz \
+	-V ${fastqDir}/H20.g.vcf.gz \
+	-V ${fastqDir}/H21.g.vcf.gz \
+	-V ${fastqDir}/H22.g.vcf.gz \
+	-V ${fastqDir}/H23.g.vcf.gz \
+	-V ${fastqDir}/H24.g.vcf.gz \
+	-V ${fastqDir}/H2.g.vcf.gz \
+	-V ${fastqDir}/H3.g.vcf.gz \
+	-V ${fastqDir}/H52.g.vcf.gz \
+	-V ${fastqDir}/H53.g.vcf.gz \
+	-V ${fastqDir}/H8.g.vcf.gz \
+	-V ${fastqDir}/Loda.g.vcf.gz \
+	-V ${fastqDir}/LUC1.g.vcf.gz \
+	-V ${fastqDir}/Nachusa2024.g.vcf.gz \
+	-V ${fastqDir}/NCU11.g.vcf.gz \
+	-V ${fastqDir}/NCU12.g.vcf.gz \
+	-V ${fastqDir}/NCU13.g.vcf.gz \
+	-V ${fastqDir}/NCU14.g.vcf.gz \
+	-V ${fastqDir}/NCU15.g.vcf.gz \
+	-V ${fastqDir}/NCU17.g.vcf.gz \
+	-V ${fastqDir}/NCU18.g.vcf.gz \
+	-V ${fastqDir}/NCU19.g.vcf.gz \
+	-V ${fastqDir}/NCU1.g.vcf.gz \
+	-V ${fastqDir}/NCU20.g.vcf.gz \
+	-V ${fastqDir}/NCU21.g.vcf.gz \
+	-V ${fastqDir}/NCU22.g.vcf.gz \
+	-V ${fastqDir}/NCU23.g.vcf.gz \
+	-V ${fastqDir}/NCU24.g.vcf.gz \
+	-V ${fastqDir}/NCU25.g.vcf.gz \
+	-V ${fastqDir}/NCU26.g.vcf.gz \
+	-V ${fastqDir}/NCU27.g.vcf.gz \
+	-V ${fastqDir}/NCU28.g.vcf.gz \
+	-V ${fastqDir}/NCU2.g.vcf.gz \
+	-V ${fastqDir}/NCU31.g.vcf.gz \
+	-V ${fastqDir}/NCU32.g.vcf.gz \
+	-V ${fastqDir}/NCU3.g.vcf.gz \
+	-V ${fastqDir}/NCU4.g.vcf.gz \
+	-V ${fastqDir}/NCU7.g.vcf.gz \
+	-V ${fastqDir}/NCU8.g.vcf.gz \
+	-V ${fastqDir}/NCU9.g.vcf.gz \
+	-V ${fastqDir}/NIU10.g.vcf.gz \
+	-V ${fastqDir}/NIU11.g.vcf.gz \
+	-V ${fastqDir}/NIU12.g.vcf.gz \
+	-V ${fastqDir}/NIU13.g.vcf.gz \
+	-V ${fastqDir}/NIU14.g.vcf.gz \
+	-V ${fastqDir}/NIU15.g.vcf.gz \
+	-V ${fastqDir}/NIU16.g.vcf.gz \
+	-V ${fastqDir}/NIU17.g.vcf.gz \
+	-V ${fastqDir}/NIU18.g.vcf.gz \
+	-V ${fastqDir}/NIU2.g.vcf.gz \
+	-V ${fastqDir}/Route54N2.g.vcf.gz \
+	-V ${fastqDir}/UMH10.g.vcf.gz \
+	-V ${fastqDir}/UMH11.g.vcf.gz \
+	-V ${fastqDir}/UMH15.g.vcf.gz \
+	-V ${fastqDir}/UMH1.g.vcf.gz \
+	-V ${fastqDir}/UMH24.g.vcf.gz \
+	-V ${fastqDir}/UMH26.g.vcf.gz \
+	-V ${fastqDir}/UMH29.g.vcf.gz \
+	-V ${fastqDir}/UMH35.g.vcf.gz \
+	-V ${fastqDir}/UMH38.g.vcf.gz \
+	-V ${fastqDir}/UMH39.g.vcf.gz \
+	-V ${fastqDir}/UMH42.g.vcf.gz \
+	-V ${fastqDir}/UMH45.g.vcf.gz \
+	-V ${fastqDir}/UMH46.g.vcf.gz \
+	-V ${fastqDir}/UMH47.g.vcf.gz \
+	-V ${fastqDir}/UMH4.g.vcf.gz \
+	-V ${fastqDir}/UMH50.g.vcf.gz \
+	-V ${fastqDir}/UMH53.g.vcf.gz \
+	-V ${fastqDir}/UMH55.g.vcf.gz \
+	-V ${fastqDir}/UMH56.g.vcf.gz \
+	-V ${fastqDir}/UMH59.g.vcf.gz \
+	-V ${fastqDir}/UMH5.g.vcf.gz \
+	-V ${fastqDir}/UMH61.g.vcf.gz \
+	-V ${fastqDir}/UMH63.g.vcf.gz \
+	-V ${fastqDir}/UMH65.g.vcf.gz \
+	-V ${fastqDir}/UMH66.g.vcf.gz \
+	-V ${fastqDir}/UMH68.g.vcf.gz \
+	-V ${fastqDir}/UMH6.g.vcf.gz \
+	-V ${fastqDir}/YH12.g.vcf.gz \
+	-V ${fastqDir}/YH14.g.vcf.gz \
+	-V ${fastqDir}/YH15.g.vcf.gz \
+	-V ${fastqDir}/YH1.g.vcf.gz \
+	-V ${fastqDir}/YH2.g.vcf.gz \
+	-V ${fastqDir}/YH3.g.vcf.gz \
+	-V ${fastqDir}/YH4.g.vcf.gz \
+    --genomicsdb-workspace-path ${fastqDir}/switchgrass_herbarium_${sampleID} \
+    -L ${sampleID}
+
+gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenotypeGVCFs \
+   -R ${genome} \
+   -V gendb://${fastqDir}/switchgrass_herbarium_${sampleID} \
+   -O ${fastqDir}/switchgrass_herbarium_${sampleID}.vcf.gz

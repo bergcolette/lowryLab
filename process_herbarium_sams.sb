@@ -48,40 +48,40 @@ genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
 # align the trimmed reads to the genome 
 
-module purge
-module load BWA
+#module purge
+#module load BWA
 
 # bwa mem -t 48 ${genome} ${fastqDir}/${sampleName}.1.paired.fastq ${fastqDir}/${sampleName}.2.paired.fastq > ${fastqDir}/${sampleName}.sam 
 
-module purge 
-module load SAMtools/1.18-GCC-12.3.0 picard/2.25.1-Java-11
+#module purge 
+#module load SAMtools/1.18-GCC-12.3.0 picard/2.25.1-Java-11
 
 # filter to minimum quality of 29 with samtools view 
-samtools view -bS ${fastqDir}/${sampleName}.sam -q 29 > ${fastqDir}/${sampleName}.bam
+#samtools view -bS ${fastqDir}/${sampleName}.sam -q 29 > ${fastqDir}/${sampleName}.bam
 
 # sort the resulting bam 
-samtools sort -T ${sampleName} -o ${fastqDir}/${sampleName}.sort.bam ${fastqDir}/${sampleName}.bam
+#samtools sort -T ${sampleName} -o ${fastqDir}/${sampleName}.sort.bam ${fastqDir}/${sampleName}.bam
 
 # label read groups with picard 
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-	I=${fastqDir}/${sampleName}.sort.bam \
-	O=${fastqDir}/${sampleName}.RG.sort.bam \
-	RGSM=${sampleName} \
-	RGLB=lib1 \
-	RGPL=ILLUMINA \
-	RGPU=unit1
+#java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
+#	I=${fastqDir}/${sampleName}.sort.bam \
+#	O=${fastqDir}/${sampleName}.RG.sort.bam \
+#	RGSM=${sampleName} \
+#	RGLB=lib1 \
+#	RGPL=ILLUMINA \
+#	RGPU=unit1
 
 # index the bam file 
-samtools index ${fastqDir}/${sampleName}.RG.sort.bam
+#samtools index ${fastqDir}/${sampleName}.RG.sort.bam
 
 # rename the bam 
-mv ${fastqDir}/${sampleName}.RG.sort.bam ${fastqDir}/${sampleName}.unsorted.bam
+#mv ${fastqDir}/${sampleName}.RG.sort.bam ${fastqDir}/${sampleName}.unsorted.bam
 
 # sort the bam 
-samtools sort -T ${sampleName} -o ${fastqDir}/${sampleName}.bam ${fastqDir}/${sampleName}.unsorted.bam
+#samtools sort -T ${sampleName} -o ${fastqDir}/${sampleName}.bam ${fastqDir}/${sampleName}.unsorted.bam
 
 # index the bam
-samtools index ${fastqDir}/${sampleName}.bam
+#samtools index ${fastqDir}/${sampleName}.bam
 
 # remove intermediate files 
 #rm ${outDir}/${sampleName}.sam
@@ -89,14 +89,14 @@ samtools index ${fastqDir}/${sampleName}.bam
 #rm ${outDir}/${sampleName}*sort*
 #rm ${outDir}/${sampleName}*rmdup_metrix_fix*
 
-# module purge
-# module load GATK
+module purge
+module load GATK
 
 # call SNPs 
-#gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" HaplotypeCaller \#
-#	-R ${genome} \
-   #	-I ${fastqDir}/${sampleID}.bam \
-   #	-O ${fastqDir}/${sampleID}.g.vcf.gz --emit-ref-confidence GVCF 
+gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" HaplotypeCaller \
+	-R ${genome} \
+   	-I ${fastqDir}/${sampleName}.bam \
+   	-O ${fastqDir}/${sampleName}.g.vcf.gz --emit-ref-confidence GVCF 
 
 # gatk --java-options "-Xmx48G -XX:+UseParallelGC -XX:ParallelGCThreads=16" GenomicsDBImport \
 #    -V ${fastqDir}/SRR8440701_${sampleID}.g.vcf.gz \

@@ -25,13 +25,13 @@ sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' 
 data="/mnt/scratch/bergcole/ASE"
 genome="/mnt/scratch/bergcole/referenceGenome/Pvirgatumvar_AP13HAP1_772_v6.0.fa"
 
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-	-I ${data}/trimmed_fastqs/${sampleID}_filt.bam \
-	-O ${data}/trimmed_fastqs/${sampleID}.RG.bam \
-	-RGSM ${sampleID} \
-	-RGLB lib1 \
-	-RGPL ILLUMINA \
-	-RGPU unit1
+#java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
+#	-I ${data}/trimmed_fastqs/${sampleID}_filt.bam \
+#	-O ${data}/trimmed_fastqs/${sampleID}.RG.bam \
+#	-RGSM ${sampleID} \
+#	-RGLB lib1 \
+#	-RGPL ILLUMINA \
+#	-RGPU unit1
 
 
 #gatk IndexFeatureFile \
@@ -39,8 +39,8 @@ java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
 
 gatk ASEReadCounter \
     -R ${genome}  \
-    --variant ${data}/vcfs/${sampleID}_snps.vcf \
-    --input ${data}/trimmed_fastqs/${sampleID}.RG.bam \
+    --variant ${data}/AP13_DAC6_allChroms_biallelic.recode.vcf \
+    --input ${data}/${sampleID}.sort.wasp.bam \
 	-O ${data}/${sampleID}.table
 
 
