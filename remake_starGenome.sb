@@ -1,6 +1,6 @@
 #!/bin/bash --login
 # Job name:
-#SBATCH --job-name=make_STARgenome_notPseudo
+#SBATCH --job-name=make_STARgenome_AP13_DAC_pseudo
 #SBATCH --nodes=1
 #SBATCH --mem=96GB 
 #SBATCH --ntasks-per-node=16
@@ -20,12 +20,12 @@ module load STAR
 # the STAR aligner needs a path to the genome .fasta files and .gtf files
 # then STAR creates a specific index for that genome 
 
-genDir="/mnt/scratch/bergcole/referenceGenome"
+genDir="/mnt/scratch/bergcole/ASE/AP13_DAC6_pseudo"
 
 STAR \
     --runThreadN 16 \
     --runMode genomeGenerate \
-    --genomeDir /mnt/scratch/bergcole/referenceGenome \
-    --genomeFastaFiles ${genDir}/Pvirgatumvar_AP13HAP1_772_v6.0.fa \
-    --sjdbGTFfile ${genDir}/Pvirgatum_AP13.gtf \
+    --genomeDir ${genDir} \
+    --genomeFastaFiles ${genDir}/AP13_DAC6_pseudo.fa \
+    --sjdbGTFfile ${genDir}/AP13_DAC6_pseudo.gtf \
     --sjdbOverhang 149 \

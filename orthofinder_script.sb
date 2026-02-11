@@ -1,5 +1,5 @@
 #!/bin/bash --login
-#SBATCH --job-name=orthofinder_run_AP13Only
+#SBATCH --job-name=orthofinder_ID_homeologues
 #SBATCH --nodes=1
 #SBATCH --time=4:00:00
 #SBATCH --mail-type=ALL
@@ -13,4 +13,4 @@ module load Miniforge3
 
 conda activate SWB_vetting
 
-orthofinder -f /mnt/scratch/bergcole/referenceGenome/pep -t 16 
+orthofinder -f /mnt/gs21/scratch/bergcole/pep -t 16 

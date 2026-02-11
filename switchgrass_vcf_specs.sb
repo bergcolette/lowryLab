@@ -1,0 +1,39 @@
+#!/bin/bash --login
+#SBATCH --job-name=switchgrass_depthMean
+#SBATCH --nodes=1
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bergcole@msu.edu
+#SBATCH --output=%x-%j.SLURMout
+#SBATCH --array=1-18 
+
+module purge
+module load VCFtools
+
+# call to the chromosome
+sampleID=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' chromosomes.array)
+
+# naming variables for the directories
+fastqDir="/mnt/scratch/bergcole/herbarium_WGS"
+
+# first getting the mean read depth in each individual with no filtering, 
+# at biallelic sites filtered by quality
+# vcftools --gzvcf ${fastqDir}/switchgrass_herbarium_${sampleID}.vcf.gz --minQ 29 --min-alleles 2 --max-alleles 2 --depth --out ${fastqDir}/${sampleID}_indv
+
+# then filtering, and seeing how many sites are left in each individual
+#vcftools --gzvcf ${fastqDir}/switchgrass_herbarium_${sampleID}.vcf.gz \
+#	--minQ 29 --minDP 8 --maxDP 50 --min-alleles 2 \
+#	--max-alleles 2 --depth  --out ${sampleID}_indv_filt
+
+# then filtering by those same filters, and outputting the missingness of each site 
+#vcftools --gzvcf ${fastqDir}/switchgrass_herbarium_${sampleID}.vcf.gz \
+       # --minQ 29 --minDP 8 --maxDP 50 --min-alleles 2 \
+       # --max-alleles 2 --missing-site  --out ${sampleID}_missingness
+
+
+# then outputting (minimal filtering) mean depth per site
+#vcftools --gzvcf ${fastqDir}/switchgrass_herbarium_${sampleID}.vcf.gz --minQ 29 --min-alleles 2 --max-alleles 2 --site-mean-depth --out ${fastqDir}/${sampleID}_site_meanDepth
+
+# now getting the depth per site of the lowest indvs and the highest indvs
+# just one chromosome for now
+vcftools --gzvcf  ${fastqDir}/switchgrass_herbarium_Chr05K.vcf.gz --minQ 29 --min-alleles 2 --max-alleles 2 --keep  --geno-depth --out test_indv_depth
